@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/VamshiKrishnaAlladi/cli-max/issues"
   },
-  "homepage": "https://github.com/VamshiKrishnaAlladi/cli-max#readme"
+  "homepage": "https://github.com/VamshiKrishnaAlladi/cli-max#readme",
+  "devDependencies": {
+    "jest": "^21.2.1"
+  }
 }
