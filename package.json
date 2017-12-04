@@ -2,7 +2,7 @@
     "name": "cli-max",
     "version": "0.0.1",
     "description": "An opinionated solution for building CLI programs.",
-    "main": "index.js",
+    "main": "src/cli-max.js",
     "scripts": {
         "test": "jest --watch"
     },
