@@ -1,0 +1,26 @@
+{
+  "name": "cli-max",
+  "version": "0.0.1",
+  "description": "An opinionated solution for building CLI programs.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VamshiKrishnaAlladi/cli-max.git"
+  },
+  "keywords": [
+    "CLI",
+    "command",
+    "minimist",
+    "commander",
+    "subcommand"
+  ],
+  "author": "Vamshi Krishna Alladi <vamshikrishnaalladi.me@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VamshiKrishnaAlladi/cli-max/issues"
+  },
+  "homepage": "https://github.com/VamshiKrishnaAlladi/cli-max#readme"
+}
