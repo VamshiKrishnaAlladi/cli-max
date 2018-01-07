@@ -4,7 +4,9 @@
     "description": "An opinionated solution for building CLI programs.",
     "main": "src/cli-max.js",
     "scripts": {
-        "test": "jest --watch"
+        "lint": "eslint --format codeFrame .",
+        "test": "jest --verbose",
+        "watch:test": "jest --verbose --watch"
     },
     "repository": {
         "type": "git",
