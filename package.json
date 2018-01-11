@@ -6,7 +6,7 @@
     "scripts": {
         "lint": "eslint --format codeFrame .",
         "test": "jest --verbose",
-        "watch:test": "jest --verbose --watch"
+        "watch:test": "jest --verbose --watchAll"
     },
     "repository": {
         "type": "git",
