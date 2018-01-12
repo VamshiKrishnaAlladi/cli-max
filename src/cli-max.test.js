@@ -1,10 +1,9 @@
 /* eslint-disable global-require */
 
 describe('Module cli-max:', () => {
-    test('should export an object with a "configure" method', () => {
-        const cli = require('./cli-max');
+    test('should export a class named CLIMax', () => {
+        const { CLIMax } = require('./cli-max');
 
-        expect(cli).toHaveProperty('configure');
-        expect(cli.configure).toBeInstanceOf(Function);
+        expect(CLIMax).toBeInstanceOf(Function);
     });
 });
