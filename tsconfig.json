@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "skipLibCheck": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "target": "ES5"
+    },
+    "exclude": [
+        "node_modules",
+        "**/*.test.ts"
+    ]
+}
