@@ -39,5 +39,26 @@
         "tslint": "^5.9.1",
         "tslint-config-airbnb": "^5.4.2",
         "typescript": "^2.6.2"
+    },
+    "jest": {
+        "collectCoverage": true,
+        "mapCoverage": true,
+        "globals": {
+            "ts-jest": {
+                "tsConfigFile": "./ts-jest.tsconfig.json"
+            }
+        },
+        "transform": {
+            "^.+\\.tsx?$": "ts-jest"
+        },
+        "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js",
+            "jsx",
+            "json",
+            "node"
+        ]
     }
 }
