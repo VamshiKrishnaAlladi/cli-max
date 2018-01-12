@@ -1,5 +1,6 @@
-const configure = require('./methods/configure');
+class CLIMax {
+}
 
 module.exports = {
-    configure,
+    CLIMax,
 };
