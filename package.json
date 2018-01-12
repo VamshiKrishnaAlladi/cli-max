@@ -4,7 +4,7 @@
     "author": "Vamshi Krishna Alladi <vamshikrishnaalladi.me@gmail.com>",
     "license": "MIT",
     "description": "An opinionated solution for building CLI programs.",
-    "main": "src/cli-max.js",
+    "main": "index.js",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/VamshiKrishnaAlladi/cli-max.git"
