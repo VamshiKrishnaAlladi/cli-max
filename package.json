@@ -51,8 +51,9 @@
                 "tsConfigFile": "./ts-jest.tsconfig.json"
             }
         },
+        "transformIgnorePatterns": [ "node_modules/(?!(@vka/ts-utils))" ],
         "transform": {
-            "^.+\\.tsx?$": "ts-jest"
+            "^.+\\.(js|jsx|ts|tsx)$": "ts-jest"
         },
         "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
         "moduleFileExtensions": [
