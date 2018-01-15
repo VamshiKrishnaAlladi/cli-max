@@ -31,6 +31,9 @@
         "watch:build": "tsc --watch",
         "watch:test": "jest --verbose --watchAll"
     },
+    "dependencies": {
+        "@vka/ts-utils": "^1.4.1"
+    },
     "devDependencies": {
         "@types/jest": "^22.0.1",
         "@types/node": "^9.3.0",
@@ -48,8 +51,9 @@
                 "tsConfigFile": "./ts-jest.tsconfig.json"
             }
         },
+        "transformIgnorePatterns": [ "node_modules/(?!(@vka/ts-utils))" ],
         "transform": {
-            "^.+\\.tsx?$": "ts-jest"
+            "^.+\\.(js|jsx|ts|tsx)$": "ts-jest"
         },
         "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
         "moduleFileExtensions": [

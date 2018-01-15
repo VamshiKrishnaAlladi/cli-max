@@ -1,3 +1,5 @@
+import { ForbiddenActionError } from '@vka/ts-utils/errors/forbidden-action-error';
+
 describe('Module cli-max:', () => {
     test('should export a class named CLIMax', () => {
         const { CLIMax } = require('./cli-max');
@@ -6,16 +8,16 @@ describe('Module cli-max:', () => {
     });
 
     describe('Class CLIMax:', () => {
-        test('should throw an error when tried to instantiate', () => {
+        test('should throw a "ForbiddenActionError" error when tried to instantiate', () => {
             const { CLIMax } = require('./cli-max');
 
             try {
                 const climax = new CLIMax();
             } catch (error) {
-                expect(error).toBeInstanceOf(Error);
+                expect(error).toBeInstanceOf(ForbiddenActionError);
             }
 
-            expect(CLIMax).toThrowError();
+            expect(() => { new CLIMax(); }).toThrowError(ForbiddenActionError);
 
             expect.assertions(2);
         });
