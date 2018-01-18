@@ -1,2 +1,21 @@
 Misc:
-    ☐ Use "mimimist" for option parsing
+    ☐ Use "minimist" for option parsing
+
+
+Class CLIMax:
+    ☐ Should have a static method "getCLI()" which returns the singleton instance of Class CLI
+
+
+Class CLI:
+    ☐ Should have an instance method "registerCommand()"
+        ☐ takes the "commandName" and "commandConfig" as the params
+        ☐ adds a command to the CLI configuartion
+        ☐ returns the CLI instance for chaining
+
+    ☐ Should have an instance method "deregisterCommand()"
+        ☐ takes the "commandName" as the param
+        ☐ removes the command from the CLI configuration
+        ☐ returns the CLI instance for chaining
+
+    ☐ Should have an instance method "getConfiguration()"
+        ☐ returns the CLI configuration object for reference
