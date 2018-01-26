@@ -19,3 +19,9 @@ Class CLI:
 
     ☐ Should have an instance method "getConfiguration()"
         ☐ returns the CLI configuration object for reference
+
+    ☐ Should have an instance method "execute()"
+        ☐ takes the minimist-parsed command line arguments as the param
+            --> require('minimist')(process.argv.slice(2));
+        ☐ Executes the corresponding command configured
+        ☐ Returns the return value of the command it ran
