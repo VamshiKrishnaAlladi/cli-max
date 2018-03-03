@@ -37,7 +37,7 @@ jobs:
 
       # run linting task
       - run:
-          name: Lint
+          name: Run lint
           command: npm run lint
 
       - run:
@@ -52,6 +52,10 @@ jobs:
             ./cc-test-reporter before-build
             npm run test-ci
             ./cc-test-reporter after-build
+
+      - run:
+          name: Upload coverage to codecov
+          command: npm run codecov
 
       - run:
           name: Make a semantic release
