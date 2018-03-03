@@ -26,6 +26,7 @@
     },
     "scripts": {
         "build": "tsc",
+        "codecov": "codecov",
         "commit": "git-cz",
         "lint": "tslint -t codeFrame -p .",
         "test": "jest --verbose",
