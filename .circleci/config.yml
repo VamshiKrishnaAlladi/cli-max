@@ -5,12 +5,9 @@
 version: 2
 jobs:
   build:
-    environment:
-      CC_TEST_REPORTER_ID: ddf2306b962b69811c41797bef4219450b7b2ef0115d0911a591e4e3643dc647
-
     docker:
       # specify the version you desire here
-      - image: circleci/node:7.10
+      - image: circleci/node:latest
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -29,7 +26,9 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: npm install
+      - run:
+          name: Install NPM packages
+          command: npm install
 
       - save_cache:
           paths:
@@ -48,13 +47,12 @@ jobs:
             chmod +x ./cc-test-reporter
 
       - run:
-          name: Trigger Code Climate's before build
-          command: ./cc-test-reporter before-build
-
-      - run:
           name: Run Tests
-          command: npm test
+          command: |
+            ./cc-test-reporter before-build
+            npm test
+            ./cc-test-reporter after-build
 
       - run:
-          name: Trigger Code Climate's after build
-          command: ./cc-test-reporter after-build -p ./coverage --exit-code $?
+          name: Make a semantic release
+          command: npm run semantic-release || true
