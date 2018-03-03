@@ -48,30 +48,6 @@
         "tslint-config-airbnb": "^5.7.0",
         "typescript": "^2.7.2"
     },
-    "jest": {
-        "collectCoverage": true,
-        "mapCoverage": true,
-        "globals": {
-            "ts-jest": {
-                "tsConfigFile": "./ts-jest.tsconfig.json"
-            }
-        },
-        "transformIgnorePatterns": [
-            "node_modules/(?!(@vka/ts-utils))"
-        ],
-        "transform": {
-            "^.+\\.(js|jsx|ts|tsx)$": "ts-jest"
-        },
-        "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-        "moduleFileExtensions": [
-            "ts",
-            "tsx",
-            "js",
-            "jsx",
-            "json",
-            "node"
-        ]
-    },
     "config": {
         "commitizen": {
             "path": "./node_modules/cz-conventional-changelog"
