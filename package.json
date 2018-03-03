@@ -29,6 +29,7 @@
         "commit": "git-cz",
         "lint": "tslint -t codeFrame -p .",
         "test": "jest --verbose",
+        "test-ci": "jest --coverage && cat ./coverage/lcov.info | codacy-coverage --language typescript",
         "watch:build": "tsc --watch",
         "watch:test": "jest --verbose --watchAll",
         "semantic-release": "semantic-release"
