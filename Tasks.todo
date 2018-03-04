@@ -1,5 +1,7 @@
 Misc:
     ☐ Use "minimist" for option parsing
+    ☐ Add all cool badges to the readme file
+        --> Badges: CircleCI, Codacy, Code Climate, Codecov, Commitizen, Semantic-release
 
 
 Class CLIMax:
