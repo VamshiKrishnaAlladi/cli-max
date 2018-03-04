@@ -1,9 +1,11 @@
 .circleci/
 .vscode/
 coverage/
+src/
+dist/
 
-jest.config.js
 .releaserc.json
+jest.config.js
 Tasks.todo
 ts-jest.tsconfig.json
 tsconfig.json
