@@ -29,6 +29,8 @@
         "codecov": "codecov",
         "commit": "git-cz",
         "lint": "tslint -t codeFrame -p .",
+        "prepack": "tsc && jest && node scripts/prePublishOnly.js",
+        "prePublishOnly": "tsc && jest && node scripts/prePublishOnly.js",
         "test": "jest --verbose",
         "test-ci": "jest --coverage && cat ./coverage/lcov.info | codacy-coverage --language typescript",
         "watch:build": "tsc --watch",
