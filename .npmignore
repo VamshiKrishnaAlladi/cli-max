@@ -1,8 +1,9 @@
 .circleci/
 .vscode/
 coverage/
-src/
 dist/
+scripts/
+src/
 
 .releaserc.json
 jest.config.js
