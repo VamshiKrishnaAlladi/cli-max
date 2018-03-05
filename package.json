@@ -38,7 +38,7 @@
         "semantic-release": "semantic-release"
     },
     "dependencies": {
-        "@vka/ts-utils": "^1.4.1"
+        "@vka/ts-utils": "^2.0.0"
     },
     "devDependencies": {
         "@types/jest": "^22.1.4",
