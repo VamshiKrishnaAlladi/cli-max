@@ -1,23 +1,23 @@
 module.exports = {
-    "collectCoverage": true,
-    "globals": {
-        "ts-jest": {
-            "tsConfigFile": "./ts-jest.tsconfig.json"
-        }
+    collectCoverage: true,
+    globals: {
+        'ts-jest': {
+            tsConfigFile: './ts-jest.tsconfig.json',
+        },
     },
-    "transformIgnorePatterns": [
-        "node_modules/(?!(@vka/ts-utils))"
+    transformIgnorePatterns: [
+        'node_modules/(?!(@vka/ts-utils))',
     ],
-    "transform": {
-        "^.+\\.(js|jsx|ts|tsx)$": "ts-jest"
+    transform: {
+        '^.+\\.(js|jsx|ts|tsx)$': 'ts-jest',
     },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-        "ts",
-        "tsx",
-        "js",
-        "jsx",
-        "json",
-        "node"
-    ]
+    testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
+    moduleFileExtensions: [
+        'ts',
+        'tsx',
+        'js',
+        'jsx',
+        'json',
+        'node',
+    ],
 };
