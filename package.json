@@ -38,22 +38,22 @@
         "semantic-release": "semantic-release"
     },
     "dependencies": {
-        "@vka/ts-utils": "^1.4.1"
+        "@vka/ts-utils": "2.0.0"
     },
     "devDependencies": {
-        "@types/jest": "^22.1.4",
-        "@types/node": "^9.4.6",
-        "codacy-coverage": "^2.1.0",
-        "codecov": "^3.0.0",
-        "commitizen": "^2.9.6",
-        "cz-conventional-changelog": "^2.1.0",
-        "fs-extra": "^5.0.0",
-        "jest": "^22.4.2",
-        "semantic-release": "^12.4.1",
-        "ts-jest": "^22.4.1",
-        "tslint": "^5.9.1",
-        "tslint-config-airbnb": "^5.7.0",
-        "typescript": "^2.7.2"
+        "@types/jest": "22.2.0",
+        "@types/node": "9.4.6",
+        "codacy-coverage": "2.1.0",
+        "codecov": "3.0.0",
+        "commitizen": "2.9.6",
+        "cz-conventional-changelog": "2.1.0",
+        "fs-extra": "5.0.0",
+        "jest": "22.4.2",
+        "semantic-release": "12.4.1",
+        "ts-jest": "22.4.1",
+        "tslint": "5.9.1",
+        "tslint-config-airbnb": "5.7.0",
+        "typescript": "2.7.2"
     },
     "config": {
         "commitizen": {
