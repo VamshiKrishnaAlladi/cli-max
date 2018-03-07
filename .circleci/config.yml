@@ -50,7 +50,7 @@ jobs:
           name: Run Tests
           command: |
             ./cc-test-reporter before-build
-            npm run test-ci
+            npm run test:ci
             ./cc-test-reporter after-build
 
       - run:
