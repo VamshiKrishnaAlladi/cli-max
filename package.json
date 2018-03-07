@@ -34,8 +34,8 @@
         "prepack": "tsc && jest && node scripts/prePublishOnly.js",
         "prePublishOnly": "tsc && jest && node scripts/prePublishOnly.js",
         "test": "jest",
-        "test-verbose": "jest --verbose",
-        "test-ci": "jest --coverage && cat ./coverage/lcov.info | codacy-coverage --language typescript",
+        "test:verbose": "jest --verbose",
+        "test:ci": "jest --coverage && cat ./coverage/lcov.info | codacy-coverage --language typescript",
         "watch:build": "tsc --watch",
         "watch:test": "jest --verbose --watchAll",
         "semantic-release": "semantic-release"
