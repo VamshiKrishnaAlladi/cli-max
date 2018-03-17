@@ -41,7 +41,7 @@
         "semantic-release": "semantic-release"
     },
     "dependencies": {
-        "@vka/ts-utils": "2.0.0"
+        "@vka/ts-utils": "2.1.1"
     },
     "devDependencies": {
         "@commitlint/cli": "6.1.3",
