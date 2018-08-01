@@ -1,25 +1,47 @@
-import { ForbiddenActionError } from '@vka/ts-utils/errors/forbidden-action-error';
 
-describe('Class CLIMax:', () => {
-    test('should have a constructor', () => {
-        const { CLIMax } = require('./cli-max');
+import { MissingMandatoryParamError } from '@vka/ts-utils';
 
-        expect(CLIMax).toBeInstanceOf(Function);
+import { createCLI, isCLI, Command } from './cli-max';
+
+const fakeCommands: Command[] = [{
+    name: 'test',
+    action: () => { console.log('Hello World!'); },
+}];
+
+describe('CLIMax module', () => {
+    it('should export a createCLI factory method', () => {
+        const climax = require('./cli-max');
+
+        expect(climax).toHaveProperty('createCLI');
     });
 
-    describe('CLIMax ==> constructor()', () => {
-        test('should throw a "ForbiddenActionError" error when tried to instantiate', () => {
-            const { CLIMax } = require('./cli-max');
+    describe('createCLI factory method', () => {
+        it('should throw "MissingMandatoryParamError" when "commands" param is not passed', () => {
+            const { createCLI } = require('./cli-max');
 
             try {
-                const climax = new CLIMax();
-            } catch (error) {
-                expect(error).toBeInstanceOf(ForbiddenActionError);
+                const cli = createCLI();
+            }
+            catch (error) {
+                expect(error).toBeInstanceOf(MissingMandatoryParamError);
+                expect(error.missingParam).toBe('commands');
             }
 
-            expect(() => { new CLIMax(); }).toThrowError(ForbiddenActionError);
-
             expect.assertions(2);
+        });
+
+        it('should return a CLI object', () => {
+            const cli = createCLI(fakeCommands);
+
+            expect(isCLI(cli)).toBe(true);
+        });
+
+        describe('CLI object', () => {
+            it('should have a "parse" method on it', () => {
+                const cli = createCLI(fakeCommands);
+
+                expect(cli).toHaveProperty('parse');
+            });
         });
     });
 });

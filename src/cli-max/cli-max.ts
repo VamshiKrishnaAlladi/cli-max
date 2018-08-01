@@ -1,7 +1,21 @@
-import { ForbiddenActionError } from '@vka/ts-utils/errors/forbidden-action-error';
+import { mandate } from '@vka/ts-utils';
 
-export class CLIMax {
-    constructor() {
-        throw new ForbiddenActionError('CLIMax is intended to be used as a Static class. Do not instantiate it.');
-    }
+export interface Command {
+    name: string;
+    action: Function;
+    help?: string;
+}
+
+export type CLI = {
+    parse: Function;
+};
+
+export function isCLI(cli: any): cli is CLI {
+    return cli.parse instanceof Function;
+}
+
+export function createCLI(commands: Command[] = mandate('commands')): CLI {
+    return {
+        parse: () => {},
+    };
 }
