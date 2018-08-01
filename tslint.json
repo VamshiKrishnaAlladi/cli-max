@@ -4,7 +4,7 @@
     ],
     "rules": {
         "ter-indent": "off",
-        "brace-style": [ true, "stroustrup" ],
+        "brace-style": [ true, "stroustrup", { "allowSingleLine": true } ],
         "max-line-length": [true, {
             "limit":120,
             "ignore-pattern": "// "
