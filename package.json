@@ -41,11 +41,13 @@
         "semantic-release": "semantic-release"
     },
     "dependencies": {
-        "@vka/ts-utils": "2.1.1"
+        "@vka/ts-utils": "2.1.1",
+        "minimist": "1.2.0"
     },
     "devDependencies": {
         "@commitlint/cli": "7.0.0",
         "@types/jest": "23.3.1",
+        "@types/minimist": "1.2.0",
         "@types/node": "10.5.5",
         "codacy-coverage": "3.0.0",
         "codecov": "3.0.4",
