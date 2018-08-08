@@ -3,11 +3,12 @@
         "tslint-config-airbnb"
     ],
     "rules": {
-        "ter-indent": "off",
+        "align": false,
         "brace-style": [ true, "stroustrup", { "allowSingleLine": true } ],
         "max-line-length": [true, {
             "limit":120,
             "ignore-pattern": "// "
-        }]
+        }],
+        "ter-indent": "off"
     }
 }
