@@ -3,10 +3,24 @@ import { MissingMandatoryParamError } from '@vka/ts-utils';
 
 import { createCLI, isCLI, Command } from './cli-max';
 
-const fakeCommands: Command[] = [{
+const fakeCLIName = 'test';
+const fakeCommand: Command = {
     name: 'test',
-    action: () => { console.log('Hello World!'); },
-}];
+    action: (subCommands, args) => { return { subCommands, args }; },
+    description: 'some help text',
+};
+const fakeArgsToPass = ['test', 'second', '-a', '--b', '--no-c', '-d=test string'];
+const expectedFakeOutput = {
+    subCommands: ['second'],
+    args: {
+        a: true,
+        b: true,
+        c: false,
+        d: 'test string',
+    },
+};
+
+const fakeCommands: Command[] = [fakeCommand];
 
 describe('CLIMax module', () => {
     it('should export a createCLI factory method', () => {
@@ -15,12 +29,10 @@ describe('CLIMax module', () => {
         expect(climax).toHaveProperty('createCLI');
     });
 
-    describe('createCLI factory method', () => {
+    describe('createCLI() method [factory]:', () => {
         it('should throw "MissingMandatoryParamError" when "commands" param is not passed', () => {
-            const { createCLI } = require('./cli-max');
-
             try {
-                const cli = createCLI();
+                const cli = createCLI({ name: fakeCLIName });
             }
             catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
@@ -31,16 +43,39 @@ describe('CLIMax module', () => {
         });
 
         it('should return a CLI object', () => {
-            const cli = createCLI(fakeCommands);
+            const cli = createCLI({ name: fakeCLIName, commands: fakeCommands });
 
             expect(isCLI(cli)).toBe(true);
         });
+    });
 
-        describe('CLI object', () => {
-            it('should have a "parse" method on it', () => {
-                const cli = createCLI(fakeCommands);
+    describe('CLI object', () => {
+        it('should have a "execute" method on it', () => {
+            const cli = createCLI({ name: fakeCLIName, commands: fakeCommands });
 
-                expect(cli).toHaveProperty('parse');
+            expect(cli).toHaveProperty('execute');
+        });
+
+        describe('CLI#execute() method: ', () => {
+            it('should throw "MissingMandatoryParamError" when "args" is not passed', () => {
+                const cli = createCLI({ name: fakeCLIName, commands: fakeCommands });
+
+                try {
+                    cli.execute();
+                }
+                catch (error) {
+                    expect(error).toBeInstanceOf(MissingMandatoryParamError);
+                    expect(error.missingParam).toEqual('args');
+                }
+
+                expect.assertions(2);
+            });
+
+            it('should return what the specified action returns', () => {
+                const cli = createCLI({ name: fakeCLIName, commands: fakeCommands });
+                const result = cli.execute(fakeArgsToPass);
+
+                expect(result).toEqual(expectedFakeOutput);
             });
         });
     });
