@@ -57,7 +57,7 @@
         "eslint-config-airbnb-base": "13.0.0",
         "eslint-plugin-import": "2.13.0",
         "fs-extra": "7.0.0",
-        "husky": "0.14.3",
+        "husky": "1.0.0",
         "jest": "23.4.2",
         "semantic-release": "15.9.5",
         "ts-jest": "23.1.3",
