@@ -5,7 +5,7 @@ export interface CLIArgs {
     [key: string]: any;
 }
 
-export type Action = (subCommmands: string[], args: CLIArgs) => any;
+export type Action = (subCommands: string[], args: CLIArgs) => any;
 
 export interface CommandOption {
     name: string;
@@ -45,7 +45,7 @@ export function isCLI(cli: any): cli is CLI {
 
 export interface CLIConfig {
     name: string;
-    commands: Command[];
+    commands?: Command[];
 }
 
 export function createCLI({ name, commands = mandate('commands') }: CLIConfig): CLI {
@@ -60,7 +60,7 @@ export function createCLI({ name, commands = mandate('commands') }: CLIConfig): 
 
     const defaultHelpCommand: Command = {
         name: 'help',
-        action: () => { console.log(commandConfig); },
+        action: () => {},
         options: [{
             name: 'help',
             alias: 'h',

@@ -4,7 +4,7 @@ import { MissingMandatoryParamError } from '@vka/ts-utils';
 import { createCLI, isCLI, Command } from './cli-max';
 
 const fakeCLIName = 'test';
-const fakeCommand: Command = {
+const fakeTestCommand: Command = {
     name: 'test',
     action: (subCommands, args) => { return { subCommands, args }; },
     description: 'some help text',
@@ -20,7 +20,7 @@ const expectedFakeOutput = {
     },
 };
 
-const fakeCommands: Command[] = [fakeCommand];
+const fakeCommands: Command[] = [fakeTestCommand];
 
 describe('CLIMax module', () => {
     it('should export a createCLI factory method', () => {
