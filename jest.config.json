@@ -1,24 +1,5 @@
 {
-    "collectCoverage": true,
-    "globals": {
-        "ts-jest": {
-            "tsConfigFile": "./ts-jest.tsconfig.json"
-        }
-    },
-    "testURL": "http://localhost",
-    "transformIgnorePatterns": [
-        "node_modules/(?!(@vka/ts-utils))"
-    ],
-    "transform": {
-        "^.+\\.(js|jsx|ts|tsx)$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-        "ts",
-        "tsx",
-        "js",
-        "jsx",
-        "json",
-        "node"
-    ]
+    "preset": "ts-jest/presets/js-with-ts",
+    "testMatch": null,
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$"
 }
