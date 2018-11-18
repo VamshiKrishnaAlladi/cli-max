@@ -50,7 +50,7 @@
         }
     },
     "dependencies": {
-        "@vka/ts-utils": "2.1.1",
+        "@vka/ts-utils": "2.2.0",
         "minimist": "1.2.0"
     },
     "devDependencies": {
