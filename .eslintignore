@@ -1,4 +1,0 @@
-.circleci/
-coverage/
-dist/
-node_modules/

@@ -4,7 +4,8 @@
     "author": "Vamshi Krishna Alladi <vamshikrishnaalladi.me@gmail.com>",
     "license": "MIT",
     "description": "An opinionated solution for building CLI programs.",
-    "main": "index.js",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "repository": {
         "type": "git",
         "url": "https://github.com/VamshiKrishnaAlladi/cli-max.git"
@@ -25,18 +26,20 @@
         "npm": ">=4.2.0"
     },
     "scripts": {
+        "prebuild": "rimraf dist",
         "build": "tsc",
         "codecov": "codecov",
         "commit": "git-cz",
-        "lint": "eslint . && tslint -t codeFrame -p .",
-        "prepack": "tsc && npm test && node scripts/prePublishOnly.js",
-        "prePublishOnly": "tsc && npm test && node scripts/prePublishOnly.js",
+        "lint": "tslint -t codeFrame -p .",
+        "prepare": "npm run build",
+        "prePublishOnly": "npm run lint && npm test",
+        "semantic-release": "semantic-release",
         "test": "jest --config ./jest.config.json",
+        "test:ci": "npm test -- --coverage",
+        "posttest:ci": "cat ./coverage/lcov.info | codacy-coverage",
         "test:verbose": "npm test -- --verbose",
-        "test:ci": "npm test -- --coverage && cat ./coverage/lcov.info | codacy-coverage --language typescript",
-        "watch:build": "tsc --watch",
-        "watch:test": "npm test -- --verbose --watchAll",
-        "semantic-release": "semantic-release"
+        "watch:build": "npm run build -- --watch",
+        "watch:test": "npm test -- --verbose --watchAll"
     },
     "config": {
         "commitizen": {
@@ -62,12 +65,10 @@
         "codecov": "3.1.0",
         "commitizen": "3.0.4",
         "cz-conventional-changelog": "2.1.0",
-        "eslint": "5.9.0",
-        "eslint-config-airbnb-base": "13.1.0",
-        "eslint-plugin-import": "2.14.0",
         "fs-extra": "7.0.1",
         "husky": "1.1.4",
         "jest": "23.6.0",
+        "rimraf": "2.6.2",
         "semantic-release": "15.12.0",
         "ts-jest": "23.10.4",
         "tslint": "5.11.0",
