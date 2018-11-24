@@ -1,0 +1,14 @@
+{
+    "collectCoverage": true,
+    "coverageThreshold": {
+        "global": {
+            "branches": 100,
+            "functions": 100,
+            "lines": 100,
+            "statements": 100
+        }
+    },
+    "preset": "ts-jest/presets/js-with-ts",
+    "testMatch": null,
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$"
+}

@@ -1,0 +1,29 @@
+Misc:
+    ☐ Use "minimist" for option parsing
+    ☐ Add all cool badges to the readme file
+        --> Badges: CircleCI, Codacy, Code Climate, Codecov, Commitizen, Semantic-release
+
+
+Class CLIMax:
+    ☐ Should have a static method "getCLI()" which returns the singleton instance of Class CLI
+
+
+Class CLI:
+    ☐ Should have an instance method "registerCommand()"
+        ☐ takes the "commandName" and "commandConfig" as the params
+        ☐ adds a command to the CLI configuartion
+        ☐ returns the CLI instance for chaining
+
+    ☐ Should have an instance method "deregisterCommand()"
+        ☐ takes the "commandName" as the param
+        ☐ removes the command from the CLI configuration
+        ☐ returns the CLI instance for chaining
+
+    ☐ Should have an instance method "getConfiguration()"
+        ☐ returns the CLI configuration object for reference
+
+    ☐ Should have an instance method "execute()"
+        ☐ takes the minimist-parsed command line arguments as the param
+            --> require('minimist')(process.argv.slice(2));
+        ☐ Executes the corresponding command configured
+        ☐ Returns the return value of the command it ran
