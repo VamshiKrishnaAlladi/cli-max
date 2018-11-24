@@ -3,24 +3,30 @@ import { MissingMandatoryParamError } from '@vka/ts-utils';
 
 import { createCLI, isCLI, Command } from './cli-max';
 
-const fakeCLIName = 'test';
-const fakeTestCommand: Command = {
-    name: 'test',
-    action: (subCommands, args) => { return { subCommands, args }; },
-    description: 'some help text',
+const cliName = 'test';
+
+const defaultCommand: Command = {
+    name: 'deafult',
+    description: 'this is the default command',
+    action: ({ subCommands, args }) => { return { subCommands, args }; },
+    isDefault: true,
 };
-const fakeArgsToPass = ['test', 'second', '-a', '--b', '--no-c', '-d=test string'];
-const expectedFakeOutput = {
-    subCommands: ['second'],
-    args: {
-        a: true,
-        b: true,
-        c: false,
-        d: 'test string',
+const helloCommand: Command = {
+    name: 'hello',
+    description: 'displays hello',
+    action: () => {
+        console.log('hello');
     },
 };
+const helpCommand: Command = {
+    name: 'help',
+    description: 'some help text',
+    action: () => {
+        console.log('displays some help text');
 
-const fakeCommands: Command[] = [fakeTestCommand];
+        return 'help';
+    },
+};
 
 describe('CLIMax module', () => {
     it('should export a createCLI factory method', () => {
@@ -30,9 +36,21 @@ describe('CLIMax module', () => {
     });
 
     describe('createCLI() method [factory]:', () => {
+        it('should throw "MissingMandatoryParamError" when "name" param is not passed', () => {
+            try {
+                createCLI();
+            }
+            catch (error) {
+                expect(error).toBeInstanceOf(MissingMandatoryParamError);
+                expect(error.missingParam).toBe('name');
+            }
+
+            expect.assertions(2);
+        });
+
         it('should throw "MissingMandatoryParamError" when "commands" param is not passed', () => {
             try {
-                const cli = createCLI({ name: fakeCLIName });
+                createCLI({ name: '' });
             }
             catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
@@ -43,7 +61,7 @@ describe('CLIMax module', () => {
         });
 
         it('should return a CLI object', () => {
-            const cli = createCLI({ name: fakeCLIName, commands: fakeCommands });
+            const cli = createCLI({ name: '', commands: [] });
 
             expect(isCLI(cli)).toBe(true);
         });
@@ -51,14 +69,14 @@ describe('CLIMax module', () => {
 
     describe('CLI object', () => {
         it('should have a "execute" method on it', () => {
-            const cli = createCLI({ name: fakeCLIName, commands: fakeCommands });
+            const cli = createCLI({ name: '', commands: [] });
 
             expect(cli).toHaveProperty('execute');
         });
 
         describe('CLI#execute() method: ', () => {
             it('should throw "MissingMandatoryParamError" when "args" is not passed', () => {
-                const cli = createCLI({ name: fakeCLIName, commands: fakeCommands });
+                const cli = createCLI({ name: '', commands: [] });
 
                 try {
                     cli.execute();
@@ -71,12 +89,95 @@ describe('CLIMax module', () => {
                 expect.assertions(2);
             });
 
-            it('should return what the specified action returns', () => {
-                const cli = createCLI({ name: fakeCLIName, commands: fakeCommands });
-                const result = cli.execute(fakeArgsToPass);
+            it('should run the command configured while creating the cli', () => {
+                const cli = createCLI({ name: '', commands: [{
+                    name: 'test',
+                    description: 'a test command',
+                    action: ({ subCommands, args }) => ({ subCommands, args }),
+                }] });
 
-                expect(result).toEqual(expectedFakeOutput);
+                const result = cli.execute(['test', 'something', '-a', '--bar', '--no-clue', '-d=testing 1 2 3']);
+
+                expect(result).toEqual({
+                    subCommands: ['something'],
+                    args: {
+                        a: true,
+                        bar: true,
+                        clue: false,
+                        d: 'testing 1 2 3',
+                    },
+                });
             });
+
+            it('should run the default command configured if no command is specified while executing', () => {
+                const cli = createCLI({
+                    name: '',
+                    commands: [
+                        {
+                            name: 'some-command',
+                            action: () => 'some-command',
+                        },
+                        {
+                            name: 'default',
+                            action: () => 'default',
+                            isDefault: true,
+                        },
+                    ],
+                });
+
+                const result = cli.execute([]);
+
+                expect(result).toBe('default');
+            });
+
+            it(
+                'should run the first default command found, if there are multiple default commands configured',
+                () => {
+                    const cli = createCLI({
+                        name: '',
+                        commands: [
+                            {
+                                name: 'first-default',
+                                action: () => 'first-default',
+                                isDefault: true,
+                            },
+                            {
+                                name: 'second-default',
+                                action: () => 'second-default',
+                                isDefault: true,
+                            },
+                        ],
+                    });
+
+                    const result = cli.execute([]);
+
+                    expect(result).toBe('first-default');
+                },
+            );
+
+            it(
+                'should run the default command configured, if the command specified while executing is not configured',
+                () => {
+                    const cli = createCLI({
+                        name: '',
+                        commands: [
+                            {
+                                name: 'some-command',
+                                action: () => 'some-command',
+                            },
+                            {
+                                name: 'default',
+                                action: () => 'default',
+                                isDefault: true,
+                            },
+                        ],
+                    });
+
+                    const result = cli.execute(['something-else']);
+
+                    expect(result).toBe('default');
+                },
+            );
         });
     });
 });

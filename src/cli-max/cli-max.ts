@@ -5,7 +5,12 @@ export interface CLIArgs {
     [key: string]: any;
 }
 
-export type Action = (subCommands: string[], args: CLIArgs) => any;
+export interface ActionParams {
+    subCommands: string[];
+    args: CLIArgs;
+}
+
+export type Action = (params: ActionParams) => any;
 
 export interface CommandOption {
     name: string;
@@ -44,41 +49,34 @@ export function isCLI(cli: any): cli is CLI {
 }
 
 export interface CLIConfig {
-    name: string;
+    name?: string;
     commands?: Command[];
 }
 
-export function createCLI({ name, commands = mandate('commands') }: CLIConfig): CLI {
-    let defaultCommand: Command = null;
+export function createCLI({ name = mandate('name'), commands = mandate('commands') }: CLIConfig = {}): CLI {
+    let defaultCommand: Command;
+
     const commandConfig: CommandConfig = commands.reduce((config, command) => {
         config[command.name] = command;
 
-        if (command.isDefault) { defaultCommand = command; }
+        if (!defaultCommand && command.isDefault) {
+            defaultCommand = command;
+        }
 
         return config;
     }, {});
 
-    const defaultHelpCommand: Command = {
-        name: 'help',
-        action: () => {},
-        options: [{
-            name: 'help',
-            alias: 'h',
-            description: 'Displays this help content',
-        }],
-    };
-
-    commandConfig.help = commandConfig.help || defaultHelpCommand;
-    defaultCommand = defaultCommand || defaultHelpCommand;
-
     return {
         name,
         execute: (args: string[] = mandate('args')) => {
-            const { _: [commandName = defaultCommand.name, ...subCommands], ...remainingArgs } = minimist(args);
+            const {
+                _: [commandName = defaultCommand.name, ...subCommands],
+                ...remainingArgs
+            } = minimist(args);
 
-            const command = commandConfig[commandName];
+            const commandToExecute = commandConfig[commandName] || defaultCommand;
 
-            return command.action(subCommands, remainingArgs);
+            return commandToExecute.action({ subCommands, args: remainingArgs });
         },
     };
 }
