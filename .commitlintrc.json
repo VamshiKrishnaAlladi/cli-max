@@ -11,7 +11,7 @@
         "header-max-length": [
             2,
             "always",
-            72
+            100
         ],
         "scope-case": [
             2,
