@@ -1,33 +1,7 @@
 import { mandate } from '@vka/ts-utils';
 import * as minimist from 'minimist';
 
-export interface CLIArgs {
-    [key: string]: any;
-}
-
-export interface ActionParams {
-    subCommands: string[];
-    args: CLIArgs;
-}
-
-export type Action = (params: ActionParams) => any;
-
-export interface CommandOption {
-    name: string;
-    alias: string;
-    description: string;
-    defaultValue?: any;
-    required?: boolean;
-}
-
-export interface Command {
-    name: string;
-    action: Action;
-    options?: CommandOption[];
-    usage?: string;
-    description?: string;
-    isDefault?: boolean;
-}
+import { Command } from '../command';
 
 interface CommandConfig {
     [commandName: string]: Command;
@@ -53,7 +27,9 @@ export interface CLIConfig {
     commands?: Command[];
 }
 
-export function createCLI({ name = mandate('name'), commands = mandate('commands') }: CLIConfig = {}): CLI {
+export function createCLI(
+    { name = mandate('name'), commands = mandate('commands') }: CLIConfig = {},
+): CLI {
     let defaultCommand: Command;
 
     const commandConfig: CommandConfig = commands.reduce((config, command) => {
