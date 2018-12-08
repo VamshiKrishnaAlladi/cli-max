@@ -3,7 +3,7 @@ import * as minimist from 'minimist';
 
 import { Command } from '../command';
 
-interface CommandConfig {
+interface CommandMap {
     [commandName: string]: Command;
 }
 
@@ -32,7 +32,7 @@ export function createCLI(
 ): CLI {
     let defaultCommand: Command;
 
-    const commandConfig: CommandConfig = commands.reduce((config, command) => {
+    const commandMap: CommandMap = commands.reduce((config, command) => {
         config[command.name] = command;
 
         if (!defaultCommand && command.isDefault) {
@@ -50,7 +50,7 @@ export function createCLI(
                 ...remainingArgs
             } = minimist(args);
 
-            const commandToExecute = commandConfig[commandName] || defaultCommand;
+            const commandToExecute = commandMap[commandName] || defaultCommand;
 
             return commandToExecute.action({ subCommands, args: remainingArgs });
         },
