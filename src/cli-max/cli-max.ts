@@ -1,39 +1,7 @@
 import { mandate } from '@vka/ts-utils';
-import * as minimist from 'minimist';
 
-export interface CLIArgs {
-    [key: string]: any;
-}
-
-export interface ActionParams {
-    subCommands: string[];
-    args: CLIArgs;
-}
-
-export type Action = (params: ActionParams) => any;
-
-export interface CommandOption {
-    name: string;
-    alias: string;
-    description: string;
-    defaultValue?: any;
-    required?: boolean;
-}
-
-export interface Command {
-    name: string;
-    action: Action;
-    options?: CommandOption[];
-    usage?: string;
-    description?: string;
-    isDefault?: boolean;
-}
-
-interface CommandConfig {
-    [commandName: string]: Command;
-}
-
-export type ExecuteFn = (args?: string[]) => any;
+import { Command } from '../command';
+import { ExecuteFn, createExecuteFn } from '../execute-function';
 
 export type CLI = {
     name: string;
@@ -53,30 +21,11 @@ export interface CLIConfig {
     commands?: Command[];
 }
 
-export function createCLI({ name = mandate('name'), commands = mandate('commands') }: CLIConfig = {}): CLI {
-    let defaultCommand: Command;
-
-    const commandConfig: CommandConfig = commands.reduce((config, command) => {
-        config[command.name] = command;
-
-        if (!defaultCommand && command.isDefault) {
-            defaultCommand = command;
-        }
-
-        return config;
-    }, {});
-
+export function createCLI(
+    { name = mandate('name'), commands = mandate('commands') }: CLIConfig = {},
+): CLI {
     return {
         name,
-        execute: (args: string[] = mandate('args')) => {
-            const {
-                _: [commandName = defaultCommand.name, ...subCommands],
-                ...remainingArgs
-            } = minimist(args);
-
-            const commandToExecute = commandConfig[commandName] || defaultCommand;
-
-            return commandToExecute.action({ subCommands, args: remainingArgs });
-        },
+        execute: createExecuteFn(commands),
     };
 }
