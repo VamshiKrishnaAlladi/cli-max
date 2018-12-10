@@ -1,6 +1,4 @@
-export interface CLIArgs {
-    [key: string]: any;
-}
+import { CommandOption, CLIArgs } from '../command-options';
 
 export interface ActionParams {
     subCommands: string[];
@@ -8,14 +6,6 @@ export interface ActionParams {
 }
 
 export type Action = (params: ActionParams) => any;
-
-export interface CommandOption {
-    name: string;
-    alias: string;
-    description: string;
-    defaultValue: any;
-    required: boolean;
-}
 
 export interface Command {
     name: string;

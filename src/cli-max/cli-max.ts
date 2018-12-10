@@ -1,13 +1,7 @@
 import { mandate } from '@vka/ts-utils';
-import * as minimist from 'minimist';
 
 import { Command } from '../command';
-
-interface CommandMap {
-    [commandName: string]: Command;
-}
-
-export type ExecuteFn = (args?: string[]) => any;
+import { ExecuteFn, createExecuteFn } from '../execute-function';
 
 export type CLI = {
     name: string;
@@ -30,29 +24,8 @@ export interface CLIConfig {
 export function createCLI(
     { name = mandate('name'), commands = mandate('commands') }: CLIConfig = {},
 ): CLI {
-    let defaultCommand: Command;
-
-    const commandMap: CommandMap = commands.reduce((config, command) => {
-        config[command.name] = command;
-
-        if (!defaultCommand && command.isDefault) {
-            defaultCommand = command;
-        }
-
-        return config;
-    }, {});
-
     return {
         name,
-        execute: (args: string[] = mandate('args')) => {
-            const {
-                _: [commandName = defaultCommand.name, ...subCommands],
-                ...remainingArgs
-            } = minimist(args);
-
-            const commandToExecute = commandMap[commandName] || defaultCommand;
-
-            return commandToExecute.action({ subCommands, args: remainingArgs });
-        },
+        execute: createExecuteFn(commands),
     };
 }
