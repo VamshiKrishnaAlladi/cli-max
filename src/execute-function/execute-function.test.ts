@@ -120,5 +120,17 @@ describe('execute-function Module', () => {
 
             expect(result).toBe('default');
         });
+
+        it('should run the action of the command whose alias is called at runtime', () => {
+            const executeFn = createExecuteFn([{
+                name: 'add',
+                action: ({ args: { a, b } }) => a + b,
+                aliases: ['sum'],
+            }]);
+
+            const result = executeFn(['sum', '--a=10', '--b=20']);
+
+            expect(result).toBe(30);
+        });
     });
 });

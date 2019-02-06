@@ -10,8 +10,9 @@ export type Action = (params: ActionParams) => any;
 export interface Command {
     name: string;
     action: Action;
+    aliases?: string[];
     options?: CommandOption[];
-    usage?: string;
     description?: string;
+    usage?: string;
     isDefault?: boolean;
 }

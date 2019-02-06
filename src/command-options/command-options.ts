@@ -13,20 +13,28 @@ export interface CommandOption {
 }
 
 export function processArgs(args: CLIArgs = mandate('args'), options: CommandOption[] = []): CLIArgs {
-    const deAliasMap = options.reduce(
-        (deAliasMap, option) => option.aliases.reduce(
-            (deAliasMap, alias) => {
-                deAliasMap[alias] = option.name;
-                return deAliasMap;
-            },
-            deAliasMap,
-        ),
-        {},
+    const { defaultValuesMap, deAliasMap } = options.reduce(
+        ({ deAliasMap, defaultValuesMap }, option) => {
+            defaultValuesMap[option.name] = option.defaultValue || true;
+
+            return {
+                defaultValuesMap,
+                deAliasMap: option.aliases.reduce(
+                    (deAliasMap, alias) => (deAliasMap[alias] = option.name, deAliasMap),
+                    deAliasMap,
+                ),
+            };
+        },
+        { deAliasMap: {}, defaultValuesMap: {} },
     );
 
     return Object.entries(args).reduce((processedArgs, [key, value]) => {
-        processedArgs[deAliasMap[key] || key] = value;
+        const deAliasedKey = deAliasMap[key] || key;
+
+        processedArgs[deAliasedKey] = value === true
+            ? (defaultValuesMap[deAliasedKey] || true)
+            : value;
 
         return processedArgs;
-    }, {});
+    }, defaultValuesMap);
 }
