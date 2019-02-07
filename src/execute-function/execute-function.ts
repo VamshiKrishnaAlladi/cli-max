@@ -1,10 +1,33 @@
 import { mandate } from '@vka/ts-utils';
 import * as minimist from 'minimist';
 
-import { Command } from '../command';
-import { processArgs } from '../command-options';
+import { Command, CLIArgs, CommandOption } from '../command';
 
 export type ExecuteFn = (args?: string[]) => any;
+
+function processArgs(args: CLIArgs, options: CommandOption[] = []): CLIArgs {
+    const defaultValues = options.reduce((defaultValuesMap, option) => (
+        defaultValuesMap[option.name] = option.defaultValue, defaultValuesMap
+    ), {});
+
+    const deAliasedOptionNames = options.reduce((deAliasedOptionNamesMap, option) => option.aliases.reduce(
+        (deAliasedOptionNamesMap, alias) => {
+            deAliasedOptionNamesMap[alias] = option.name;
+            return deAliasedOptionNamesMap;
+        },
+        deAliasedOptionNamesMap,
+    ), {});
+
+    return Object.entries(args).reduce((processedArgs, [key, value]) => {
+        const deAlaisedOptionName = deAliasedOptionNames[key] || key;
+
+        processedArgs[deAlaisedOptionName] = value === true
+            ? (defaultValues[deAlaisedOptionName] || true)
+            : value;
+
+        return processedArgs;
+    }, defaultValues);
+}
 
 export function createExecuteFn(commands: Command[] = mandate('commands')): ExecuteFn {
     return (args: string[] = mandate('args')) => {

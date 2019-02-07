@@ -132,5 +132,29 @@ describe('execute-function Module', () => {
 
             expect(result).toBe(30);
         });
+
+        it('should run the action with proper de-aliased args for options', () => {
+            const execute = createExecuteFn([{
+                name: 'divide',
+                action: ({ args: { dividend, divisor } }) => (dividend / divisor),
+                options: [{
+                    name: 'dividend',
+                    aliases: ['a'],
+                    description: 'this is what is to be divided',
+                    defaultValue: 1,
+                    required: false,
+                }, {
+                    name: 'divisor',
+                    aliases: ['b'],
+                    description: 'this is what is divided with',
+                    defaultValue: 1,
+                    required: false,
+                }],
+            }]);
+
+            const result = execute(['divide', '--a=20', '--b=2']);
+
+            expect(result).toBe(10);
+        });
     });
 });

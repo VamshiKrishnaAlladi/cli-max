@@ -1,4 +1,14 @@
-import { CommandOption, CLIArgs } from '../command-options';
+export interface CLIArgs {
+    [key: string]: any;
+}
+
+export interface CommandOption {
+    name: string;
+    aliases: string[];
+    description: string;
+    defaultValue: any;
+    required: boolean;
+}
 
 export interface ActionParams {
     subCommands: string[];
