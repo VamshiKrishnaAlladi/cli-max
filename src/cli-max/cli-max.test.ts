@@ -1,7 +1,7 @@
 
 import { MissingMandatoryParamError } from '@vka/ts-utils';
 
-import { createCLI, isCLI } from './cli-max';
+import { createCLI, isCLI, CLIConfig } from './cli-max';
 
 describe('cli-max module', () => {
     it('should export a factory method called "createCLI"', () => {
@@ -12,9 +12,21 @@ describe('cli-max module', () => {
     });
 
     describe('"createCLI" function', () => {
-        it('should throw "MissingMandatoryParamError" when "name" param is NOT passed', () => {
+        it('should throw "MissingMandatoryParamError" when "config" is NOT passed', () => {
             try {
                 createCLI();
+            }
+            catch (error) {
+                expect(error).toBeInstanceOf(MissingMandatoryParamError);
+                expect(error.missingParam).toBe('config');
+            }
+
+            expect.assertions(2);
+        });
+
+        it('should throw "MissingMandatoryParamError" when "name" is NOT passed', () => {
+            try {
+                createCLI(<CLIConfig>{ description: '', commands: [] });
             }
             catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
@@ -24,9 +36,21 @@ describe('cli-max module', () => {
             expect.assertions(2);
         });
 
-        it('should throw "MissingMandatoryParamError" when "commands" param is NOT passed', () => {
+        it('should throw "MissingMandatoryParamError" when "description" is NOT passed', () => {
             try {
-                createCLI({ name: '' });
+                createCLI(<CLIConfig>{ name: '', commands: [] });
+            }
+            catch (error) {
+                expect(error).toBeInstanceOf(MissingMandatoryParamError);
+                expect(error.missingParam).toBe('description');
+            }
+
+            expect.assertions(2);
+        });
+
+        it('should throw "MissingMandatoryParamError" when "commands" is NOT passed', () => {
+            try {
+                createCLI(<CLIConfig>{ name: '', description: '' });
             }
             catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
@@ -37,7 +61,11 @@ describe('cli-max module', () => {
         });
 
         it('should return a CLI object', () => {
-            const cli = createCLI({ name: '', commands: [] });
+            const cli = createCLI({
+                name: 'some name',
+                commands: [],
+                description: 'some description',
+            });
 
             expect(isCLI(cli)).toBe(true);
         });
