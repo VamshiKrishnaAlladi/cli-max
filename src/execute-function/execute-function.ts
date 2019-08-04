@@ -19,10 +19,10 @@ function processArgs(args: CLIArgs, options: CommandOption[] = []): CLIArgs {
     ), {});
 
     return Object.entries(args).reduce((processedArgs, [key, value]) => {
-        const deAlaisedOptionName = deAliasedOptionNames[key] || key;
+        const deAliasedOptionName = deAliasedOptionNames[key] || key;
 
-        processedArgs[deAlaisedOptionName] = value === true
-            ? (defaultValues[deAlaisedOptionName] || true)
+        processedArgs[deAliasedOptionName] = value === true
+            ? (defaultValues[deAliasedOptionName] || true)
             : value;
 
         return processedArgs;
