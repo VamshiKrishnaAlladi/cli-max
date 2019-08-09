@@ -2,7 +2,7 @@ export interface CLIArgs {
     [key: string]: any;
 }
 
-export interface CommandOption {
+export interface Option {
     name: string;
     aliases: string[];
     description: string;
@@ -17,12 +17,20 @@ export interface ActionParams {
 
 export type Action = (params: ActionParams) => any;
 
-export interface Command {
+export interface SubCommand {
     name: string;
+    description: string;
+    usage: string;
     action: Action;
     aliases?: string[];
-    options?: CommandOption[];
-    description?: string;
-    usage?: string;
+    options?: Option[];
     isDefault?: boolean;
+}
+
+export interface Command {
+    name: string;
+    description: string;
+    usage: string;
+    action: Action;
+    subCommands: SubCommand[];
 }

@@ -1,11 +1,11 @@
 import { mandate } from '@vka/ts-utils';
 import * as minimist from 'minimist';
 
-import { Command, CLIArgs, CommandOption } from '../command';
+import { SubCommand, CLIArgs, Option } from '../command';
 
 export type ExecuteFn = (args?: string[]) => any;
 
-function processArgs(args: CLIArgs, options: CommandOption[] = []): CLIArgs {
+function processArgs(args: CLIArgs, options: Option[] = []): CLIArgs {
     const defaultValues = options.reduce((defaultValuesMap, option) => (
         defaultValuesMap[option.name] = option.defaultValue, defaultValuesMap
     ), {});
@@ -29,7 +29,7 @@ function processArgs(args: CLIArgs, options: CommandOption[] = []): CLIArgs {
     }, defaultValues);
 }
 
-export function createExecuteFn(commands: Command[] = mandate('commands')): ExecuteFn {
+export function createExecuteFn(commands: SubCommand[] = mandate('commands')): ExecuteFn {
     return (args: string[] = mandate('args')) => {
         const [defaultCommand] = commands.filter(command => command.isDefault);
 
