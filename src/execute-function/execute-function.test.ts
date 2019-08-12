@@ -1,14 +1,14 @@
 import { MissingMandatoryParamError } from '@vka/ts-utils';
 
 import { createExecuteFn } from './execute-function';
-import { SubCommand } from '../command';
+import { Command, SubCommand, Action, ActionParams } from '../command';
 
-const fakeCommands: SubCommand[] = [
+const fakeSubCommands: SubCommand[] = [
     {
         name: 'test',
         description: 'a test command',
         usage: 'test <params>',
-        action: ({ subCommands, args }) => ({ subCommands, args }),
+        action: ({ arguments: subCommands, flags: args }) => ({ subCommands, args }),
     },
     {
         name: 'default',
@@ -28,14 +28,14 @@ const fakeCommands: SubCommand[] = [
         name: 'add',
         description: 'performs addition of two values',
         usage: 'add -a <value1> -b <value2>',
-        action: ({ args: { a, b } }) => a + b,
+        action: ({ flags: { a, b } }) => a + b,
         aliases: ['sum'],
     },
     {
         name: 'divide',
         description: 'performs division on two values',
         usage: 'divide --divisor <value1> --dividend <value2>',
-        action: ({ args: { dividend, divisor } }) => (dividend / divisor),
+        action: ({ flags: { dividend, divisor } }) => (dividend / divisor),
         options: [
             {
                 name: 'dividend',
@@ -54,6 +54,24 @@ const fakeCommands: SubCommand[] = [
     },
 ];
 
+const fakeAction: Action = actionParams => ({ ...actionParams });
+
+const baseCommand: Command = {
+    name: 'fake-command',
+    description: 'This command is for testing purposes',
+    usage: 'fake-command <sub-command> <params>',
+};
+
+const fakeCommandWithSubCommands: Command = {
+    ...baseCommand,
+    subCommands: fakeSubCommands,
+};
+
+const fakeCommandWithAction: Command = {
+    ...baseCommand,
+    action: fakeAction,
+};
+
 describe('execute-function Module', () => {
     it('should export a method called "createExecuteFn"', () => {
         const exports = require('./execute-function');
@@ -63,42 +81,56 @@ describe('execute-function Module', () => {
     });
 
     describe('createExecuteFn function', () => {
-        it('should throw a "MissingMandatoryParamError" when "commands" is NOT passed', () => {
+        it('should throw a "MissingMandatoryParamError" when "command" is NOT passed', () => {
             try {
                 createExecuteFn();
             }
             catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
-                expect(error.missingParam).toBe('commands');
+                expect(error.missingParam).toBe('command');
             }
 
             expect.assertions(2);
         });
 
         it('should return an "execute" function for commands passed', () => {
-            const execute = createExecuteFn([]);
+            const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             expect(execute).toBeInstanceOf(Function);
         });
     });
 
     describe('execute function', () => {
-        it('should throw "MissingMandatoryParamError" when "args" is not passed', () => {
-            const execute = createExecuteFn([]);
+        it('should throw "MissingMandatoryParamError" when "processArgs" is not passed', () => {
+            const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             try {
                 execute();
             }
             catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
-                expect(error.missingParam).toEqual('args');
+                expect(error.missingParam).toEqual('processArgs');
             }
 
             expect.assertions(2);
         });
 
+        it('should run the action configured in the command passed when creating the cli', () => {
+            const execute = createExecuteFn(fakeCommandWithAction);
+
+            const result = execute(['argument1', 'argument2', '--flag1', '10', '--flag2', '20']);
+
+            expect(result).toEqual({
+                arguments: ['argument1', 'argument2'],
+                flags: {
+                    flag1: 10,
+                    flag2: 20,
+                },
+            });
+        });
+
         it('should run the command configured while creating the cli', () => {
-            const execute = createExecuteFn(fakeCommands);
+            const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute(['test', 'something', '-a', '--bar', '--no-clue', '-d=testing 1 2 3']);
 
@@ -114,7 +146,7 @@ describe('execute-function Module', () => {
         });
 
         it('should run the default command configured if no command is specified while executing', () => {
-            const execute = createExecuteFn(fakeCommands);
+            const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute([]);
 
@@ -122,7 +154,7 @@ describe('execute-function Module', () => {
         });
 
         it('should run the first default command, when found multiple default commands', () => {
-            const execute = createExecuteFn(fakeCommands);
+            const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute([]);
 
@@ -130,7 +162,7 @@ describe('execute-function Module', () => {
         });
 
         it('should run the default command configured, if the command specified in args is not found', () => {
-            const execute = createExecuteFn(fakeCommands);
+            const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute(['non-existant-command-name']);
 
@@ -138,7 +170,7 @@ describe('execute-function Module', () => {
         });
 
         it('should run the action of the command whose alias is called at runtime', () => {
-            const executeFn = createExecuteFn(fakeCommands);
+            const executeFn = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = executeFn(['sum', '--a=10', '--b=20']);
 
@@ -146,7 +178,7 @@ describe('execute-function Module', () => {
         });
 
         it('should run the action with proper de-aliased args for options', () => {
-            const execute = createExecuteFn(fakeCommands);
+            const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute(['divide', '--a=20', '--b=2']);
 

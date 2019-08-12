@@ -4,5 +4,5 @@ import { Command } from '../command';
 import { ExecuteFn, createExecuteFn } from '../execute-function';
 
 export function createCLI(command: Command = mandate('command')): ExecuteFn {
-    return createExecuteFn(command.subCommands);
+    return createExecuteFn(command);
 }

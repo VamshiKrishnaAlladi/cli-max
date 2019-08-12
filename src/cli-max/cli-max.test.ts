@@ -33,10 +33,10 @@ describe('cli-max module', () => {
             expect.assertions(2);
         });
 
-        it('should return a CLI object', () => {
-            const cli = createCLI(fakeCommand);
+        it('should return an "execute" function', () => {
+            const execute = createCLI(fakeCommand);
 
-            expect(cli).toBeInstanceOf(Function);
+            expect(execute).toBeInstanceOf(Function);
         });
     });
 });

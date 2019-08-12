@@ -1,49 +1,56 @@
 import { mandate } from '@vka/ts-utils';
 import * as minimist from 'minimist';
 
-import { SubCommand, CLIArgs, Option } from '../command';
+import { RuntimeFlags, Option, Command } from '../command';
 
 export type ExecuteFn = (args?: string[]) => any;
 
-function processArgs(args: CLIArgs, options: Option[] = []): CLIArgs {
-    const defaultValues = options.reduce((defaultValuesMap, option) => (
+function processFlags(flags: RuntimeFlags, options: Option[] = []): RuntimeFlags {
+    const defaultValuesMap = options.reduce((defaultValuesMap, option) => (
         defaultValuesMap[option.name] = option.defaultValue, defaultValuesMap
     ), {});
 
-    const deAliasedOptionNames = options.reduce((deAliasedOptionNamesMap, option) => option.aliases.reduce(
-        (deAliasedOptionNamesMap, alias) => {
-            deAliasedOptionNamesMap[alias] = option.name;
-            return deAliasedOptionNamesMap;
-        },
+    const deAliasedOptionNamesMap = options.reduce((deAliasedOptionNamesMap, option) => option.aliases.reduce(
+        (deAliasedOptionNamesMap, alias) => (deAliasedOptionNamesMap[alias] = option.name, deAliasedOptionNamesMap),
         deAliasedOptionNamesMap,
     ), {});
 
-    return Object.entries(args).reduce((processedArgs, [key, value]) => {
-        const deAliasedOptionName = deAliasedOptionNames[key] || key;
+    return Object.entries(flags).reduce((processedFlags, [flag, value]) => {
+        const deAliasedOptionName = deAliasedOptionNamesMap[flag] || flag;
 
-        processedArgs[deAliasedOptionName] = value === true
-            ? (defaultValues[deAliasedOptionName] || true)
+        processedFlags[deAliasedOptionName] = value === true
+            ? (defaultValuesMap[deAliasedOptionName] || true)
             : value;
 
-        return processedArgs;
-    }, defaultValues);
+        return processedFlags;
+    }, defaultValuesMap);
 }
 
-export function createExecuteFn(commands: SubCommand[] = mandate('commands')): ExecuteFn {
-    return (args: string[] = mandate('args')) => {
-        const [defaultCommand] = commands.filter(command => command.isDefault);
+export function createExecuteFn(command: Command = mandate('command')): ExecuteFn {
+    const { action, options, subCommands } = command;
 
-        const {
-            _: [commandName = defaultCommand.name, ...subCommands],
-            ...remainingArgs
-        } = minimist(args);
+    return (processArgs: string[] = mandate('processArgs')) => {
 
-        const [commandToExecute = defaultCommand] = commands.filter(({ name, aliases = [] }) => {
+        const { _: runtimeArguments, ...runtimeFlags } = minimist(processArgs);
+
+        if (action) {
+            return action({
+                arguments: runtimeArguments,
+                flags: processFlags(runtimeFlags, options),
+            });
+        }
+
+        const [defaultCommand] = subCommands.filter(command => command.isDefault);
+
+        const [commandName = defaultCommand.name, ...remainingArguments] = runtimeArguments;
+
+        const [commandToExecute = defaultCommand] = subCommands.filter(({ name, aliases = [] }) => {
             return name === commandName || aliases.includes(commandName);
         });
 
-        const processedArgs = processArgs(remainingArgs, commandToExecute.options);
-
-        return commandToExecute.action({ subCommands, args: processedArgs });
+        return commandToExecute.action({
+            arguments: remainingArguments,
+            flags: processFlags(runtimeFlags, commandToExecute.options),
+        });
     };
 }

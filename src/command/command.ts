@@ -1,4 +1,4 @@
-export interface CLIArgs {
+export interface RuntimeFlags {
     [key: string]: any;
 }
 
@@ -11,8 +11,8 @@ export interface Option {
 }
 
 export interface ActionParams {
-    subCommands: string[];
-    args: CLIArgs;
+    arguments: string[];
+    flags: RuntimeFlags;
 }
 
 export type Action = (params: ActionParams) => any;
@@ -31,6 +31,7 @@ export interface Command {
     name: string;
     description: string;
     usage: string;
-    action: Action;
-    subCommands: SubCommand[];
+    action?: Action;
+    options?: Option[];
+    subCommands?: SubCommand[];
 }
