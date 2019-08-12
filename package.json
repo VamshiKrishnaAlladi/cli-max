@@ -42,6 +42,7 @@
         "posttest:ci": "cat ./coverage/lcov.info | codacy-coverage",
         "test:verbose": "npm test -- --verbose",
         "watch:build": "npm run build -- --watch",
+        "watch:test:brief": "npm test -- --watchAll",
         "watch:test": "npm test -- --verbose --watchAll"
     },
     "config": {
