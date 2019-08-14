@@ -1,7 +1,16 @@
 
 import { MissingMandatoryParamError } from '@vka/ts-utils';
 
-import { createCLI, isCLI } from './cli-max';
+import { createCLI } from './cli-max';
+import { Command } from './../command';
+
+const fakeCommand: Command = {
+    name: 'fake-command',
+    description: 'this command is for testing purposes',
+    usage: 'fake-command <sub-command> <params>',
+    action: () => {},
+    subCommands: [],
+};
 
 describe('cli-max module', () => {
     it('should export a factory method called "createCLI"', () => {
@@ -12,34 +21,22 @@ describe('cli-max module', () => {
     });
 
     describe('"createCLI" function', () => {
-        it('should throw "MissingMandatoryParamError" when "name" param is NOT passed', () => {
+        it('should throw "MissingMandatoryParamError" when "command" is NOT passed', () => {
             try {
                 createCLI();
             }
             catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
-                expect(error.missingParam).toBe('name');
+                expect(error.missingParam).toBe('command');
             }
 
             expect.assertions(2);
         });
 
-        it('should throw "MissingMandatoryParamError" when "commands" param is NOT passed', () => {
-            try {
-                createCLI({ name: '' });
-            }
-            catch (error) {
-                expect(error).toBeInstanceOf(MissingMandatoryParamError);
-                expect(error.missingParam).toBe('commands');
-            }
+        it('should return an "execute" function', () => {
+            const execute = createCLI(fakeCommand);
 
-            expect.assertions(2);
-        });
-
-        it('should return a CLI object', () => {
-            const cli = createCLI({ name: '', commands: [] });
-
-            expect(isCLI(cli)).toBe(true);
+            expect(execute).toBeInstanceOf(Function);
         });
     });
 });
