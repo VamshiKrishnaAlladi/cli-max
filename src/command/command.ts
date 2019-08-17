@@ -10,9 +10,12 @@ export interface Option {
     required: boolean;
 }
 
+export type GetHelpFn = () => string;
+
 export interface ActionParams {
     parameters: string[];
     flags: RuntimeFlags;
+    getHelp: GetHelpFn;
 }
 
 export type Action = (params: ActionParams) => any;

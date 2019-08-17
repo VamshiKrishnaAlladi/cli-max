@@ -1,11 +1,16 @@
 import { mandate } from '@vka/ts-utils';
 import * as minimist from 'minimist';
 
-import { RuntimeFlags, Option, Command } from '../command';
+import { Command, Option, RuntimeFlags } from '../command';
+import { createGetHelpFn, HelpConfig } from '../get-help-function';
 
 export type ExecuteFn = (args?: string[]) => any;
 
-function processFlags(flags: RuntimeFlags, options: Option[] = []): RuntimeFlags {
+export interface ExecuteConfig extends HelpConfig {
+    generateHelp?: boolean;
+}
+
+function processFlags(options: Option[] = [], flags: RuntimeFlags): RuntimeFlags {
     const defaultValuesMap = options.reduce((defaultValuesMap, option) => (
         defaultValuesMap[option.name] = option.defaultValue, defaultValuesMap
     ), {});
@@ -26,7 +31,14 @@ function processFlags(flags: RuntimeFlags, options: Option[] = []): RuntimeFlags
     }, defaultValuesMap);
 }
 
-export function createExecuteFn(command: Command = mandate('command')): ExecuteFn {
+const defaultConfig: ExecuteConfig = {
+    generateHelp: true,
+};
+
+export function createExecuteFn(
+    command: Command = mandate('command'),
+    { generateHelp, prettyHelp }: ExecuteConfig = defaultConfig,
+): ExecuteFn {
     const { action, options, subCommands = [] } = command;
 
     return (processArgs: string[] = mandate('processArgs')) => {
@@ -44,13 +56,15 @@ export function createExecuteFn(command: Command = mandate('command')): ExecuteF
         if (!commandToExecute && action) {
             return action({
                 parameters,
-                flags: processFlags(runtimeFlags, options),
+                flags: processFlags(options, runtimeFlags),
+                ...(generateHelp && { getHelp: createGetHelpFn(command, { prettyHelp }) }),
             });
         }
 
         return commandToExecute.action({
             parameters: remainingParameters,
-            flags: processFlags(runtimeFlags, commandToExecute.options),
+            flags: processFlags(commandToExecute.options, runtimeFlags),
+            ...(generateHelp && { getHelp: createGetHelpFn(commandToExecute, { prettyHelp }) }),
         });
     };
 }
