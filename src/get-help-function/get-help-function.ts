@@ -6,9 +6,11 @@ export interface HelpConfig {
     prettyHelp?: boolean;
 }
 
-export function createGetHelpFn(command: Command | SubCommand, config: HelpConfig = <any>{}) {
-    const { prettyHelp = true } = config;
+const defaultConfig: HelpConfig = {
+    prettyHelp: true,
+};
 
+export function createGetHelpFn(command: Command | SubCommand, { prettyHelp }: HelpConfig = defaultConfig) {
     const { options = [] } = command;
 
     const title = prettyHelp ? chalk.yellowBright.bold.underline : x => x;
