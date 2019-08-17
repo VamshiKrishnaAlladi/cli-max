@@ -11,7 +11,7 @@ export interface Option {
 }
 
 export interface ActionParams {
-    arguments: string[];
+    parameters: string[];
     flags: RuntimeFlags;
 }
 

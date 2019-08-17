@@ -27,29 +27,29 @@ function processFlags(flags: RuntimeFlags, options: Option[] = []): RuntimeFlags
 }
 
 export function createExecuteFn(command: Command = mandate('command')): ExecuteFn {
-    const { action, options, subCommands } = command;
+    const { action, options, subCommands = [] } = command;
 
     return (processArgs: string[] = mandate('processArgs')) => {
 
-        const { _: runtimeArguments, ...runtimeFlags } = minimist(processArgs);
+        const { _: parameters, ...runtimeFlags } = minimist(processArgs);
 
-        if (action) {
-            return action({
-                arguments: runtimeArguments,
-                flags: processFlags(runtimeFlags, options),
-            });
-        }
+        const [commandName, ...remainingParameters] = parameters;
 
         const [defaultCommand] = subCommands.filter(command => command.isDefault);
-
-        const [commandName = defaultCommand.name, ...remainingArguments] = runtimeArguments;
 
         const [commandToExecute = defaultCommand] = subCommands.filter(({ name, aliases = [] }) => {
             return name === commandName || aliases.includes(commandName);
         });
 
+        if (!commandToExecute && action) {
+            return action({
+                parameters,
+                flags: processFlags(runtimeFlags, options),
+            });
+        }
+
         return commandToExecute.action({
-            arguments: remainingArguments,
+            parameters: remainingParameters,
             flags: processFlags(runtimeFlags, commandToExecute.options),
         });
     };

@@ -8,7 +8,7 @@ const fakeSubCommands: SubCommand[] = [
         name: 'test',
         description: 'a test command',
         usage: 'test <params>',
-        action: ({ arguments: subCommands, flags: args }) => ({ subCommands, args }),
+        action: ({ parameters, flags }) => ({ parameters, flags }),
     },
     {
         name: 'default',
@@ -115,28 +115,14 @@ describe('execute-function Module', () => {
             expect.assertions(2);
         });
 
-        it('should run the action configured in the command passed when creating the cli', () => {
-            const execute = createExecuteFn(fakeCommandWithAction);
-
-            const result = execute(['argument1', 'argument2', '--flag1', '10', '--flag2', '20']);
-
-            expect(result).toEqual({
-                arguments: ['argument1', 'argument2'],
-                flags: {
-                    flag1: 10,
-                    flag2: 20,
-                },
-            });
-        });
-
         it('should run the command configured while creating the cli', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute(['test', 'something', '-a', '--bar', '--no-clue', '-d=testing 1 2 3']);
 
             expect(result).toEqual({
-                subCommands: ['something'],
-                args: {
+                parameters: ['something'],
+                flags: {
                     a: true,
                     bar: true,
                     clue: false,
@@ -183,6 +169,20 @@ describe('execute-function Module', () => {
             const result = execute(['divide', '--a=20', '--b=2']);
 
             expect(result).toBe(10);
+        });
+
+        it('should run the main action if the command given at runtime is invalid & has no default command', () => {
+            const execute = createExecuteFn(fakeCommandWithAction);
+
+            const result = execute(['argument1', 'argument2', '--flag1', '10', '--flag2', '20']);
+
+            expect(result).toEqual({
+                parameters: ['argument1', 'argument2'],
+                flags: {
+                    flag1: 10,
+                    flag2: 20,
+                },
+            });
         });
     });
 });
