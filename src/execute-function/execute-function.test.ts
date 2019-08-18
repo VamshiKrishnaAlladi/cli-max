@@ -193,5 +193,13 @@ describe('execute-function Module', () => {
 
             expect(result).toBe(false);
         });
+
+        it('should return when there is no default command and the main action configured', () => {
+            const execute = createExecuteFn(baseCommand);
+
+            const result = execute([]);
+
+            expect(result).toBe(undefined);
+        });
     });
 });

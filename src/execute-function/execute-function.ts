@@ -53,12 +53,16 @@ export function createExecuteFn(
             return name === commandName || aliases.includes(commandName);
         });
 
-        if (!commandToExecute && action) {
-            return action({
-                parameters,
-                flags: processFlags(options, runtimeFlags),
-                ...(generateHelp && { getHelp: createGetHelpFn(command, { prettyHelp }) }),
-            });
+        if (!commandToExecute) {
+            if (action) {
+                return action({
+                    parameters,
+                    flags: processFlags(options, runtimeFlags),
+                    ...(generateHelp && { getHelp: createGetHelpFn(command, { prettyHelp }) }),
+                });
+            }
+
+            return;
         }
 
         return commandToExecute.action({
