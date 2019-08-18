@@ -1,14 +1,14 @@
 import { MissingMandatoryParamError } from '@vka/ts-utils';
 
+import { Action, Command, SubCommand } from '../command';
 import { createExecuteFn } from './execute-function';
-import { Command, SubCommand, Action, ActionParams } from '../command';
 
 const fakeSubCommands: SubCommand[] = [
     {
         name: 'test',
         description: 'a test command',
         usage: 'test <params>',
-        action: ({ arguments: subCommands, flags: args }) => ({ subCommands, args }),
+        action: ({ parameters, flags }) => ({ parameters, flags }),
     },
     {
         name: 'default',
@@ -54,7 +54,9 @@ const fakeSubCommands: SubCommand[] = [
     },
 ];
 
-const fakeAction: Action = actionParams => ({ ...actionParams });
+const fakeAction: Action = () => 'fake-action-result';
+
+const checkHelpAction: Action = ({ getHelp }) => (!!getHelp);
 
 const baseCommand: Command = {
     name: 'fake-command',
@@ -70,6 +72,11 @@ const fakeCommandWithSubCommands: Command = {
 const fakeCommandWithAction: Command = {
     ...baseCommand,
     action: fakeAction,
+};
+
+const fakeCommandWithCheckHelpAction: Command = {
+    ...baseCommand,
+    action: checkHelpAction,
 };
 
 describe('execute-function Module', () => {
@@ -115,28 +122,14 @@ describe('execute-function Module', () => {
             expect.assertions(2);
         });
 
-        it('should run the action configured in the command passed when creating the cli', () => {
-            const execute = createExecuteFn(fakeCommandWithAction);
-
-            const result = execute(['argument1', 'argument2', '--flag1', '10', '--flag2', '20']);
-
-            expect(result).toEqual({
-                arguments: ['argument1', 'argument2'],
-                flags: {
-                    flag1: 10,
-                    flag2: 20,
-                },
-            });
-        });
-
-        it('should run the command configured while creating the cli', () => {
+        it('should execute the command configured while creating the cli', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute(['test', 'something', '-a', '--bar', '--no-clue', '-d=testing 1 2 3']);
 
             expect(result).toEqual({
-                subCommands: ['something'],
-                args: {
+                parameters: ['something'],
+                flags: {
                     a: true,
                     bar: true,
                     clue: false,
@@ -145,7 +138,7 @@ describe('execute-function Module', () => {
             });
         });
 
-        it('should run the default command configured if no command is specified while executing', () => {
+        it('should execute the default command configured if no command is specified while executing', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute([]);
@@ -153,7 +146,7 @@ describe('execute-function Module', () => {
             expect(result).toBe('default');
         });
 
-        it('should run the first default command, when found multiple default commands', () => {
+        it('should execute the first default command, when found multiple default commands', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute([]);
@@ -161,7 +154,7 @@ describe('execute-function Module', () => {
             expect(result).toBe('default');
         });
 
-        it('should run the default command configured, if the command specified in args is not found', () => {
+        it('should execute the default command configured, if the command specified in args is not found', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute(['non-existant-command-name']);
@@ -169,7 +162,7 @@ describe('execute-function Module', () => {
             expect(result).toBe('default');
         });
 
-        it('should run the action of the command whose alias is called at runtime', () => {
+        it('should execute the action of the command whose alias is called at runtime', () => {
             const executeFn = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = executeFn(['sum', '--a=10', '--b=20']);
@@ -177,12 +170,36 @@ describe('execute-function Module', () => {
             expect(result).toBe(30);
         });
 
-        it('should run the action with proper de-aliased args for options', () => {
+        it('should execute the action with proper de-aliased args for options', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
             const result = execute(['divide', '--a=20', '--b=2']);
 
             expect(result).toBe(10);
+        });
+
+        it('should execute the main action if the command given at runtime is invalid & has no default command', () => {
+            const execute = createExecuteFn(fakeCommandWithAction);
+
+            const result = execute(['argument1', 'argument2', '--flag1', '10', '--flag2', '20']);
+
+            expect(result).toEqual('fake-action-result');
+        });
+
+        it('should not generate Help when configured not to', () => {
+            const execute = createExecuteFn(fakeCommandWithCheckHelpAction, { generateHelp: false });
+
+            const result = execute([]);
+
+            expect(result).toBe(false);
+        });
+
+        it('should return when there is no default command and the main action configured', () => {
+            const execute = createExecuteFn(baseCommand);
+
+            const result = execute([]);
+
+            expect(result).toBe(undefined);
         });
     });
 });

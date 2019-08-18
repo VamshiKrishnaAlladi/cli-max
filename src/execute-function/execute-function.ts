@@ -1,11 +1,16 @@
 import { mandate } from '@vka/ts-utils';
 import * as minimist from 'minimist';
 
-import { RuntimeFlags, Option, Command } from '../command';
+import { Command, Option, RuntimeFlags } from '../command';
+import { createGetHelpFn, defaultHelpConfig, HelpConfig } from '../get-help-function';
 
 export type ExecuteFn = (args?: string[]) => any;
 
-function processFlags(flags: RuntimeFlags, options: Option[] = []): RuntimeFlags {
+export interface ExecuteConfig extends HelpConfig {
+    generateHelp?: boolean;
+}
+
+function processFlags(options: Option[] = [], flags: RuntimeFlags): RuntimeFlags {
     const defaultValuesMap = options.reduce((defaultValuesMap, option) => (
         defaultValuesMap[option.name] = option.defaultValue, defaultValuesMap
     ), {});
@@ -26,31 +31,46 @@ function processFlags(flags: RuntimeFlags, options: Option[] = []): RuntimeFlags
     }, defaultValuesMap);
 }
 
-export function createExecuteFn(command: Command = mandate('command')): ExecuteFn {
-    const { action, options, subCommands } = command;
+export const defaultExecuteConfig: ExecuteConfig = {
+    ...defaultHelpConfig,
+    generateHelp: true,
+};
+
+export function createExecuteFn(
+    command: Command = mandate('command'),
+    config: ExecuteConfig = defaultExecuteConfig,
+): ExecuteFn {
+    const { action, options, subCommands = [] } = command;
+    const { generateHelp, prettyHelp } = { ...defaultExecuteConfig, ...config };
 
     return (processArgs: string[] = mandate('processArgs')) => {
 
-        const { _: runtimeArguments, ...runtimeFlags } = minimist(processArgs);
+        const { _: parameters, ...runtimeFlags } = minimist(processArgs);
 
-        if (action) {
-            return action({
-                arguments: runtimeArguments,
-                flags: processFlags(runtimeFlags, options),
-            });
-        }
+        const [commandName, ...remainingParameters] = parameters;
 
         const [defaultCommand] = subCommands.filter(command => command.isDefault);
-
-        const [commandName = defaultCommand.name, ...remainingArguments] = runtimeArguments;
 
         const [commandToExecute = defaultCommand] = subCommands.filter(({ name, aliases = [] }) => {
             return name === commandName || aliases.includes(commandName);
         });
 
+        if (!commandToExecute) {
+            if (action) {
+                return action({
+                    parameters,
+                    flags: processFlags(options, runtimeFlags),
+                    ...(generateHelp && { getHelp: createGetHelpFn(command, { prettyHelp }) }),
+                });
+            }
+
+            return;
+        }
+
         return commandToExecute.action({
-            arguments: remainingArguments,
-            flags: processFlags(runtimeFlags, commandToExecute.options),
+            parameters: remainingParameters,
+            flags: processFlags(commandToExecute.options, runtimeFlags),
+            ...(generateHelp && { getHelp: createGetHelpFn(commandToExecute, { prettyHelp }) }),
         });
     };
 }
