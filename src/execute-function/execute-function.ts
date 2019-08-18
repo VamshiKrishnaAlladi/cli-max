@@ -2,7 +2,7 @@ import { mandate } from '@vka/ts-utils';
 import * as minimist from 'minimist';
 
 import { Command, Option, RuntimeFlags } from '../command';
-import { createGetHelpFn, HelpConfig } from '../get-help-function';
+import { createGetHelpFn, defaultHelpConfig, HelpConfig } from '../get-help-function';
 
 export type ExecuteFn = (args?: string[]) => any;
 
@@ -31,15 +31,17 @@ function processFlags(options: Option[] = [], flags: RuntimeFlags): RuntimeFlags
     }, defaultValuesMap);
 }
 
-const defaultConfig: ExecuteConfig = {
+export const defaultExecuteConfig: ExecuteConfig = {
+    ...defaultHelpConfig,
     generateHelp: true,
 };
 
 export function createExecuteFn(
     command: Command = mandate('command'),
-    { generateHelp, prettyHelp }: ExecuteConfig = defaultConfig,
+    config: ExecuteConfig = defaultExecuteConfig,
 ): ExecuteFn {
     const { action, options, subCommands = [] } = command;
+    const { generateHelp, prettyHelp } = { ...defaultExecuteConfig, ...config };
 
     return (processArgs: string[] = mandate('processArgs')) => {
 
