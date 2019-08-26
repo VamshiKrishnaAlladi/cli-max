@@ -32,7 +32,6 @@
         "prebuild": "rimraf dist",
         "build": "tsc",
         "codecov": "codecov",
-        "commit": "git-cz",
         "lint": "tslint -t codeFrame -p .",
         "prepare": "npm run build",
         "prePublishOnly": "npm run lint && npm test",
@@ -57,7 +56,7 @@
         }
     },
     "dependencies": {
-        "@vka/ts-utils": "2.2.0",
+        "@vka/ts-utils": "2.3.0",
         "chalk": "2.4.2",
         "minimist": "1.2.0"
     },
@@ -68,7 +67,6 @@
         "@types/node": "10.12.21",
         "codacy-coverage": "3.4.0",
         "codecov": "3.5.0",
-        "commitizen": "4.0.3",
         "cz-conventional-changelog": "2.1.0",
         "fs-extra": "7.0.1",
         "husky": "1.3.1",
