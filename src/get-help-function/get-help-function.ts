@@ -5,10 +5,12 @@ import { Command, Option, SubCommand } from '../command';
 
 export interface HelpConfig {
     prettyHelp?: boolean;
+    paddingInDetails?: number;
 }
 
 export const defaultHelpConfig: HelpConfig = {
     prettyHelp: true,
+    paddingInDetails: 20,
 };
 
 const nl = '\n';
@@ -19,11 +21,10 @@ const append = (x: string) => (y: string) => `${y}${x}`;
 const appendNL = append(nl);
 const append2NLs = append(`${nl}${nl}`);
 const appendTab = append(tab);
-const append2Tabs = append(`${tab}${tab}`);
 
 export function createGetHelpFn(command: Command | SubCommand, config: HelpConfig = defaultHelpConfig) {
     const { options = [], subCommands = [] } = <Command & SubCommand>command;
-    const { prettyHelp } = { ...defaultHelpConfig, ...config };
+    const { prettyHelp, paddingInDetails } = { ...defaultHelpConfig, ...config };
 
     const title = prettyHelp ? chalk.yellowBright.bold.underline : identity;
     const subtitle = prettyHelp ? chalk.greenBright.bold : identity;
@@ -42,14 +43,12 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
         )('');
     };
 
-    const optionHelp = ({ name, description }: Option) => {
-        return pipe(
-            appendNL,
-            appendTab,
-            append(key(`--${name}`.padEnd(20, ' '))),
-            append(description),
-        )('');
-    };
+    const optionHelp = ({ name, description }: Option) => pipe(
+        appendNL,
+        appendTab,
+        append(key(`--${name}`.padEnd(paddingInDetails, ' '))),
+        append(description),
+    )('');
 
     const getHelpForOptions = (options: Option[]) => (helpText: string) => {
         if (options.length === 0) {
@@ -68,7 +67,7 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
     const subCommmandHelp = ({ name, description }: SubCommand) => pipe(
         appendNL,
         appendTab,
-        append(key(name.padEnd(20, ' '))),
+        append(key(name.padEnd(paddingInDetails, ' '))),
         append(description),
     )('');
 
