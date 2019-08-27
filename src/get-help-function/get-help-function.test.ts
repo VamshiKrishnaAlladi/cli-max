@@ -60,7 +60,7 @@ ${subtitle(prettyHelp)('usage:')} fake-command
 
 ${subtitle(prettyHelp)('options:')}
 
-${tab}${key(prettyHelp)('--opt               ')}this option is used to specify some flag
+${tab}[ ${key(prettyHelp)('--opt')} | ${key(prettyHelp)('--o')} ] - this option is used to specify some flag
 `;
 
 const expectedHelpTextWithSubCommands = prettyHelp => `
@@ -78,7 +78,7 @@ ${title(prettyHelp)('sub-command')} - a fake description of sub-command
 
 ${subtitle(prettyHelp)('usage:')} fake-command sub-command
 
-${subtitle(prettyHelp)('aliases:')}${tab}${key(prettyHelp)('sc')}, ${key(prettyHelp)('sub-cmd')}
+${subtitle(prettyHelp)('aliases:')} ${key(prettyHelp)('sc')}, ${key(prettyHelp)('sub-cmd')}
 `;
 
 describe('get-help-function Module:', () => {

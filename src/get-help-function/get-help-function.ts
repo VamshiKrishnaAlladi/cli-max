@@ -16,7 +16,7 @@ export const defaultHelpConfig: HelpConfig = {
 const nl = '\n';
 const tab = '\t';
 
-const identity = (x:any) => x;
+const identity = (x: any) => x;
 const append = (x: string) => (y: string) => `${y}${x}`;
 const appendNL = append(nl);
 const append2NLs = append(`${nl}${nl}`);
@@ -33,9 +33,7 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
     const defaultHelp = ({ name, description, usage }: Command | SubCommand) => {
         return pipe(
             appendNL,
-            append(title(name)),
-            append(' - '),
-            append(description),
+            append(`${title(name)} - ${description}`),
             append2NLs,
             append(`${subtitle('usage:')} ${usage}`),
             appendNL,
@@ -49,19 +47,21 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
 
         return pipe(
             appendNL,
-            append(subtitle('aliases:')),
-            appendTab,
-            append(aliases.map(alias => key(alias)).join(', ')),
+            append(`${subtitle('aliases:')} ${aliases.map(alias => key(alias)).join(', ')}`),
             appendNL,
         )(helpText);
     };
 
-    const optionHelp = ({ name, description }: Option) => pipe(
-        appendNL,
-        appendTab,
-        append(key(`--${name}`.padEnd(paddingInDetails, ' '))),
-        append(description),
-    )('');
+    const optionHelp = ({ name, description, aliases }: Option) => {
+        const names = [name, ...aliases].map(name => key(`--${name}`)).join(' | ');
+
+        return pipe(
+            appendNL,
+            appendTab,
+            append(`[ ${names} ] - ${description}`),
+            appendNL,
+        )('');
+    };
 
     const getHelpForOptions = (options: Option[]) => (helpText: string) => {
         if (options.length === 0) {
@@ -73,7 +73,6 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
             append(subtitle('options:')),
             appendNL,
             append(options.map(optionHelp).join('')),
-            appendNL,
         )(helpText);
     };
 
