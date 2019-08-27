@@ -35,23 +35,13 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run linting task
       - run:
           name: Run lint
           command: npm run lint
 
       - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
-
-      - run:
           name: Run Tests
-          command: |
-            ./cc-test-reporter before-build
-            npm run test:ci
-            ./cc-test-reporter after-build
+          command: npm run test:ci
 
       - run:
           name: Upload coverage to codecov

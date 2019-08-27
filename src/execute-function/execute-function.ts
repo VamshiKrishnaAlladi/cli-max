@@ -10,6 +10,11 @@ export interface ExecuteConfig extends HelpConfig {
     generateHelp?: boolean;
 }
 
+export const defaultExecuteConfig: ExecuteConfig = {
+    ...defaultHelpConfig,
+    generateHelp: true,
+};
+
 function processFlags(options: Option[] = [], flags: RuntimeFlags): RuntimeFlags {
     const defaultValuesMap = options.reduce((defaultValuesMap, option) => (
         defaultValuesMap[option.name] = option.defaultValue, defaultValuesMap
@@ -31,17 +36,12 @@ function processFlags(options: Option[] = [], flags: RuntimeFlags): RuntimeFlags
     }, defaultValuesMap);
 }
 
-export const defaultExecuteConfig: ExecuteConfig = {
-    ...defaultHelpConfig,
-    generateHelp: true,
-};
-
 export function createExecuteFn(
     command: Command = mandate('command'),
     config: ExecuteConfig = defaultExecuteConfig,
 ): ExecuteFn {
     const { action, options, subCommands = [] } = command;
-    const { generateHelp, prettyHelp } = { ...defaultExecuteConfig, ...config };
+    const { generateHelp, ...helpConfig } = { ...defaultExecuteConfig, ...config };
 
     return (processArgs: string[] = mandate('processArgs')) => {
 
@@ -60,7 +60,7 @@ export function createExecuteFn(
                 return action({
                     parameters,
                     flags: processFlags(options, runtimeFlags),
-                    ...(generateHelp && { getHelp: createGetHelpFn(command, { prettyHelp }) }),
+                    ...(generateHelp && { getHelp: createGetHelpFn(command, helpConfig) }),
                 });
             }
 
@@ -70,7 +70,7 @@ export function createExecuteFn(
         return commandToExecute.action({
             parameters: remainingParameters,
             flags: processFlags(commandToExecute.options, runtimeFlags),
-            ...(generateHelp && { getHelp: createGetHelpFn(commandToExecute, { prettyHelp }) }),
+            ...(generateHelp && { getHelp: createGetHelpFn(commandToExecute, helpConfig) }),
         });
     };
 }
