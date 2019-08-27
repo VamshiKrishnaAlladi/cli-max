@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { pipe } from '@vka/ts-utils';
 
 import { Command, Option, SubCommand } from '../command';
 
@@ -10,32 +11,84 @@ export const defaultHelpConfig: HelpConfig = {
     prettyHelp: true,
 };
 
+const nl = '\n';
+const tab = '\t';
+
+const identity = (x:any) => x;
+const append = (x: string) => (y: string) => `${y}${x}`;
+const appendNL = append(nl);
+const append2NLs = append(`${nl}${nl}`);
+const appendTab = append(tab);
+const append2Tabs = append(`${tab}${tab}`);
+
 export function createGetHelpFn(command: Command | SubCommand, config: HelpConfig = defaultHelpConfig) {
-    const { options = [] } = command;
+    const { options = [], subCommands = [] } = <Command & SubCommand>command;
     const { prettyHelp } = { ...defaultHelpConfig, ...config };
 
-    const title = prettyHelp ? chalk.yellowBright.bold.underline : x => x;
-    const subtitle = prettyHelp ? chalk.greenBright.bold : x => x;
-    const key = prettyHelp ? chalk.magentaBright.bold : x => x;
-
-    const nl = '\n';
-    const tab = '\t';
+    const title = prettyHelp ? chalk.yellowBright.bold.underline : identity;
+    const subtitle = prettyHelp ? chalk.greenBright.bold : identity;
+    const key = prettyHelp ? chalk.magentaBright.bold : identity;
 
     const defaultHelp = ({ name, description, usage }: Command | SubCommand) => {
-        return `${nl}${title(name)}${nl}${nl}${tab}${description}${nl}${nl}${subtitle('usage:')} ${usage}${nl}`;
+        return pipe(
+            appendNL,
+            append(title(name)),
+            append2NLs,
+            appendTab,
+            append(description),
+            append2NLs,
+            append(`${subtitle('usage:')} ${usage}`),
+            appendNL,
+        )('');
     };
 
     const optionHelp = ({ name, description }: Option) => {
-        return `${nl}${tab}${key(`--${name}`)}${tab}${tab}${description}`;
+        return pipe(
+            appendNL,
+            appendTab,
+            append(key(`--${name}`.padEnd(20, ' '))),
+            append(description),
+        )('');
     };
 
-    const getHelpForOptions = (options: Option[], helpText: string) => {
+    const getHelpForOptions = (options: Option[]) => (helpText: string) => {
         if (options.length === 0) {
             return helpText;
         }
 
-        return `${helpText}${nl}${subtitle('options:')}${nl}${options.map(optionHelp).join('')}${nl}`;
+        return pipe(
+            appendNL,
+            append(subtitle('options:')),
+            appendNL,
+            append(options.map(optionHelp).join('')),
+            appendNL,
+        )(helpText);
     };
 
-    return () => getHelpForOptions(options, defaultHelp(command));
+    const subCommmandHelp = ({ name, description }: SubCommand) => pipe(
+        appendNL,
+        appendTab,
+        append(key(name.padEnd(20, ' '))),
+        append(description),
+    )('');
+
+    const getHelpForSubCommands = (subCommands: SubCommand[]) => (helpText: string) => {
+        if (subCommands.length === 0) {
+            return helpText;
+        }
+
+        return pipe(
+            appendNL,
+            append(subtitle('commands:')),
+            appendNL,
+            append(subCommands.map(subCommmandHelp).join('')),
+            appendNL,
+        )(helpText);
+    };
+
+    return () => pipe(
+        defaultHelp,
+        getHelpForOptions(options),
+        getHelpForSubCommands(subCommands),
+    )(command);
 }
