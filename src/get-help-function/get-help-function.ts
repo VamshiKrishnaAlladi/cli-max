@@ -23,7 +23,7 @@ const append2NLs = append(`${nl}${nl}`);
 const appendTab = append(tab);
 
 export function createGetHelpFn(command: Command | SubCommand, config: HelpConfig = defaultHelpConfig) {
-    const { options = [], subCommands = [] } = <Command & SubCommand>command;
+    const { aliases = [], options = [], subCommands = [] } = <Command & SubCommand>command;
     const { prettyHelp, paddingInDetails } = { ...defaultHelpConfig, ...config };
 
     const title = prettyHelp ? chalk.yellowBright.bold.underline : identity;
@@ -34,13 +34,26 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
         return pipe(
             appendNL,
             append(title(name)),
-            append2NLs,
-            appendTab,
+            append(' - '),
             append(description),
             append2NLs,
             append(`${subtitle('usage:')} ${usage}`),
             appendNL,
         )('');
+    };
+
+    const getHelpForCommandAliases = (aliases: string[]) => (helpText: string) => {
+        if (aliases.length === 0) {
+            return helpText;
+        }
+
+        return pipe(
+            appendNL,
+            append(subtitle('aliases:')),
+            appendTab,
+            append(aliases.map(alias => key(alias)).join(', ')),
+            appendNL,
+        )(helpText);
     };
 
     const optionHelp = ({ name, description }: Option) => pipe(
@@ -87,6 +100,7 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
 
     return () => pipe(
         defaultHelp,
+        getHelpForCommandAliases(aliases),
         getHelpForOptions(options),
         getHelpForSubCommands(subCommands),
     )(command);
