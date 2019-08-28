@@ -45,7 +45,7 @@ export function createExecuteFn(
 
     return (processArgs: string[] = mandate('processArgs')) => {
 
-        const { _: parameters, ...runtimeFlags } = minimist(processArgs);
+        const { _: parameters, ...runtimeFlags } = minimist(processArgs.slice(2));
 
         const [commandName, ...remainingParameters] = parameters;
 
