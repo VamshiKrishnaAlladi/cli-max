@@ -1,45 +1,47 @@
 # **cli-max**
 
-An opinionated solution for building CLI Applications using Node.js.
+An opinionated solution for building CLI applications using Node.js.
 
 ---
 
-## **Understanding CLI Application Categories :**
+## **Understanding CLI Application Categories**
 
 CLI Applications can be categorized into two types
 
 - Single Command Apps
 - Multi Command Apps
 
-### **Single Command Apps :**
-Single Command Apps are usually just one main action.
+**Single Command Apps**
 
-**Examples:** `mkdir`, `touch`, `ls`, etc.,
+Single Command Apps usually have just one main action.
 
-### **Multi Command Apps :**
+_**Examples:**_ `mkdir`, `touch`, `ls`, etc.,
+
+**Multi Command Apps**
+
 Multi Command Apps are usually a collection of actions.
 
 They have sub-commands that perform different operations.
 
-**Examples:** `git`, `npm`, etc.,
+_**Examples:**_ `git`, `npm`, etc.,
 
 ---
 
-## **Understanding CLI Command invocation :**
+## **Understanding CLI Command invocation**
 
-### **Structure :**
+### **Structure**
 
 ```shell
 $ command sub-command <...[--options]> <...parameters>
 ```
 
-**Examples :**
+**Examples**
 
 ```shell
 $ mkdir "New Folder"
 ```
 
-- `mkdir` here is a command
+- `mkdir` is the command
 - the value `New Folder` is called a parameter or an argument.
 
 ```shell
@@ -51,122 +53,102 @@ $ git pull --quiet origin master
  - `--quiet` is an option
  - `origin` and `master` are the parameters
 
-
 ---
 
-## **Introduction to `cli-max` :**
+## **Introduction to `cli-max`**
 
-`cli-max` is a library that tries to make the experience of building a CLI app easy an pleasant.
+`cli-max` is a library that tries to make the experience of building a CLI app easy and pleasant.
 
-`cli-max`'s API conciously tries to make your code more declarative and thus be easier to build, understand and maintain.
+The API of `cli-max` consciously tries to make your code more declarative and thus be easier to build, understand and maintain.
 
+### **Features**
 
-### **Features :**
-
-- Can be used to build both Single and Multi Command CLI Apps
-- Ability to configure a command as default which will be executed when no valid command name is passed at runtime
+- Single and Multi Command CLI Apps, both can be implemented using `cli-max`
+- A Command can be configured as a default. and this will be executed when no valid command name is passed at runtime
 - Sub-Commands can have aliases, making it easy for end-users to pass alternative command names
 - Options can have aliases too (supports both short flags and long alternatives)
-- Auto-generates "help" for every command using the details provided in the configuration
+- Options can be configured with default values
+- "help" details for every command is auto-generated using the details provided in the configuration
 
 ---
 
-##<a name="getting-started"></a> **Getting Started :**
+## <a name="getting-started"></a> **Getting Started**
 
-`cli-max`'s approach to building CLI apps can broadly be described as a two step process:
+The approach to building CLI apps using `cli-max`, can broadly be described as a two-step process:
 
 1. _**Configure**_
-1. _**Compute**_
+2. _**Execute**_
 
-**Step 1 - _Configure_ :**
+### **Step 1 - _Configure_**
 
-With the idea of your cli app ready, you prepare a mental model of the app which is either a single main command or a command with a list of multiple sub-commands.
-
-Now you configure this structure you prepared as a structure required by the `cli-max`'s configuration API `createCLI`
+You can configure and implement the functionality of your CLI app using the API `createCLI()`.
 
 ```typescript
-function createCLI(command: Command, config: CLIConfig): ExecuteFn {}
+function createCLI(command: Command, config: CLIConfig): ExecuteFn
 ```
 
-The `createCLI` API takes two parameters of types `Command` and `CLIConfig`
+The `createCLI()` API takes two parameters of types [Command](#command) and [CLIConfig](#cli-config) respectively.
 
-**_Command_** is of the structure
-```typescript
-{
-    name: string;
-    description: string;
-    usage: string;
-    action?: Action;
-    options?: Option[];
-    subCommands?: SubCommand[];
-}
-```
+You can build a Single Command CLI App by implementing all its functionality in the `action` property of the `command` argument passed to `createCLI()`.
 
-and _**CLIConfig**_ is of the structure
+For building Multi Command CLI App, you can configure sub-commands and implement their functionality in corresponding `action` property of each sub-command.
 
-```typescript
-{
-    generateHelp?: boolean;
-    prettyHelp?: boolean;
-    paddingInDetails?: number;
-}
-```
+If invoked with proper configuration as mentioned above `createCLI()` API returns a function.
 
-If invoked with proper configuration as mentioned above `createCLI` API return a function.
+This function is what is used in the next step.
 
-This function is what is used in the computation step.
+### **Step 2 - _Execute_**
 
-**Step 2 - _Compute_ :**
+The function returned by the `createCLI()` API is what invokes the actual functionality.
 
-The function returned by the `createCLI` API is what actually triggers the functionality.
+One can call the function returned by `createCLI()` as `cli` or `execute` or `run` or `parse` or `compute` or anything similar.
 
-One can call the function returned by `createCLI` as `execute` or `run` or `parse` or `compute` or anything similar.
+This function encapsulates the idea of processing and evaluating the actual arguments and flags passed at runtime and hence any of the above names.
 
-This function encapsulates the idea of processing and evaluating the actual arguments and flags passed at runtime and hence all the above names.
+The type for the function returned by `createCLI()` is [ExecuteFn](#execute-fn)
 
-> **Note :** For the purpose of explaining, this document will from now on refer this function as `executeFn` but remember it can be called anything per you convenience.
-
-This API looks like
+> **Note:** To explain easily, this document will from now on refer this function as `executeFn`. But, remember it can be named anything per your convenience.
 
 ```typescript
-function executeFn(processArgs: string[]) {}
+const executeFn = createCLI(someCommand, someConfig); // step-1
+
+const result = executeFn(process.argv); // step-2
 ```
 
 The `executeFn` expects the arguments received by the Node.js process at runtime.
 
-One can access these arguments passed to a Node.js program from the global property `process.argv`. (read more about [process.argv][process-argv])
+One can access these arguments passed to a Node.js process from the global property `process.argv`. (read more about [process.argv][process-argv])
 
-### Some inisight on `process.argv` :
+Invoking `executeFn` with runtime arguments properly will parse the arguments and execute the corresponding command configured in the 1st step.
+
+`executeFn` also returns the output value of the command executed from the configured commands.
+
+**Some insight on `process.argv`**
+
 `process.argv` is an array of the command line arguments received by the Node.js process
 
-Launching a Node.js process as :
+Launching a Node.js process as
 ```shell
 $ node process-args.js one two=three four
 ```
 
-would generate the `process.argv` with the following values:
-```
-0: /path/to/the/node/executable
-1: /path/to/the/file/process-args.js
-2: one
-3: two=three
-4: four
-```
-
-Invoking `executeFn` with runtime arguments properly will parse the arguments and execute the corresponding command configured in the 1st step.
-
+would generate the `process.argv` with the following values
 ```typescript
-const result = executeFn(process.argv);
+[
+    "/path/to/the/node/executable",
+    "/path/to/the/file/process-args.js",
+    "one",
+    "two=three",
+    "four"
+]
 ```
-
-`executeFn` also returns the output value of the command executed from the configured commands.
 
 ---
 
 ## **API in detail:**
 
 **API:**
-- [createCLI( )](#create-cli)
+- [createCLI()](#create-cli)
 
 **Types:**
 - [ExecuteFn](#execute-fn)
@@ -183,15 +165,15 @@ const result = executeFn(process.argv);
 
 ---
 
-### <a name="create-cli"></a> **createCLI( ) :**
+### <a name="create-cli"></a> **createCLI()**
 
-This API is used to configure the command, sub-commands, options and actions
+This API is used to configure the `command`, `sub-commands`, `options` and `actions`
 
 ```typescript
 function createCLI(command: Command, config: CLIConfig): ExecuteFn
 ```
 
-**params :**
+**params**
 
 Expects two arguments
 
@@ -204,15 +186,15 @@ returns a function of type [ExecuteFn](#execute-fn)
 
 ---
 
-### <a name="execute-fn"></a> **ExecuteFn :**
+### <a name="execute-fn"></a> **ExecuteFn**
 
-This is the type of function returned by [createCLI()](#create-cli) API
+This is the type for the function returned by [createCLI()](#create-cli) API
 
 ```typescript
 type ExecuteFn = function (processArgs: string[]): any
 ```
 
-**params :**
+**params**
 
 Expects one argument
 
@@ -220,24 +202,23 @@ Expects one argument
 
 `processArgs` is supposed to be [process.argv][process-argv] i.e, the list of arguments received by the process
 
-**return value :**
+**return value**
 
 returns the output of the command executed from the list of sub-commands configured
 
 ---
 
-### <a name="action"></a> **Action :**
+### <a name="action"></a> **Action**
 
 This is the type for the callback function that is configured in a [Command](#command) or a [SubCommand](#sub-command) to implement its functionality.
 
 An `action` callback configured in a `Command` or a `SubCommand` gets invoked automatically when `executeFn` receives the command-name in the `processArgs`.
 
-
 ```typescript
 type Action = function (params: ActionParams): any;
 ```
 
-**params :**
+**params**
 
 Receives one argument
 
@@ -245,11 +226,13 @@ Receives one argument
 
 ---
 
-### <a name="get-help-fn"></a> **GetHelpFn :**
+### <a name="get-help-fn"></a> **GetHelpFn**
 
-This is the type for the function that is passed in the [ActionParams](#action-params) to an `action`. the `getHelp` function fetches the auto-generated "help" details for a `command` the action is being configured to.
+This is the type for the function that generates "help" details for a `command` or a `sub-command`.
 
-If you want to display "help" for a `command` you can just invoke this function (available as a property in the object received by the `action` configured for the `command`) and this would return the "help" details generated specifically for the `command` in context.
+This function `getHelp` can be accessed as a property in the [ActionParams](#action-params) received by the `action`.
+
+If you want to display "help" for a `command`, you can just invoke this function (available as a property in the object received by the `action` configured for the `command`) and it would return the "help" details generated specifically for the `command` in context.
 
 ```typescript
 type GetHelpFn = function (): string;
@@ -257,9 +240,9 @@ type GetHelpFn = function (): string;
 
 ---
 
-### <a name="command"></a> **Command :**
+### <a name="command"></a> **Command**
 
-This type encapsulates the details needed to configure a command
+This type encapsulates the details needed to configure a `command`
 
 ```typescript
 {
@@ -272,17 +255,17 @@ This type encapsulates the details needed to configure a command
 }
 ```
 
-> **Note :** To auto-generate "help" details for a command, it is assumed that at the least the `name`, `description` and `usage` properties are assigned non-empty values.
+> **Note** To auto-generate proper "help" details for a `command`, it is assumed that at the least the `name`, `description` and `usage` properties are assigned non-empty values.
 
-To create a Single Command CLI App one can just implement the action property in the Command object being passed to `createCLI` API.
+To create a Single Command CLI App one can just implement the action property in the Command object being passed to `createCLI()` API.
 
-To create a Multi Command CLI App one has to configure subCommands property in the Command object that is passed to `createCLI` API. For these Apps the main action property is optional but it can be used to handle cases where end-user invokes just the main command
+To create a Multi Command CLI App one has to configure `subCommands` property in the `command` object that is passed to `createCLI()` API. For these Apps the main action property is optional but it can be used to handle cases where end-user invokes just the main command.
 
 ---
 
-### <a name="sub-command"></a> **SubCommand :**
+### <a name="sub-command"></a> **SubCommand**
 
-This type encapsulates the details needed to configure a sub-command
+This type encapsulates the details needed to configure a `sub-command`
 
 ```typescript
 {
@@ -296,11 +279,11 @@ This type encapsulates the details needed to configure a sub-command
 }
 ```
 
-> **Note :** To auto-generate "help" details for a sub-command, it is assumed that at the least the `name`, `description` and `usage` properties are assigned non-empty values.
+> **Note** To auto-generate proper "help" details for a `sub-command`, it is assumed that at the least the `name`, `description` and `usage` properties are assigned non-empty values.
 
 ---
 
-### <a name="option"></a> **Option :**
+### <a name="option"></a> **Option**
 
 This type encapsulates the details needed to configure an option for either a command or a sub-command
 
@@ -314,11 +297,11 @@ This type encapsulates the details needed to configure an option for either a co
 }
 ```
 
-> **Note :** To auto-generate "help" details for a command or a sub-command, it is assumed that at the least the `name` and `description` for individual options are assigned non-empty values.
+> **Note** To auto-generate proper "help" details for `options` in a `command` or a `sub-command`, it is assumed that at the least the `name` and `description` for individual options are assigned non-empty values.
 
 ---
 
-### <a name="action-params"></a> **ActionParams :**
+### <a name="action-params"></a> **ActionParams**
 
 This type represents the object passed to an `action` of a command or a sub-command
 
@@ -332,7 +315,7 @@ This type represents the object passed to an `action` of a command or a sub-comm
 
 ---
 
-### <a name="runtime-flags"></a> **RuntimeFlags :**
+### <a name="runtime-flags"></a> **RuntimeFlags**
 
 This type represents the collection of flags received at runtime.
 
@@ -346,9 +329,9 @@ each flag and its value received at runtime is assigned as a property and the co
 
 ---
 
-### <a name="cli-config"></a> **CLIConfig :**
+### <a name="cli-config"></a> **CLIConfig**
 
-This type encapsulates the customization options that can be passed to the [createCLI( )](#create-cli) API
+This type encapsulates the customization options that can be passed to the [createCLI()](#create-cli) API
 
 ```typescript
 {
