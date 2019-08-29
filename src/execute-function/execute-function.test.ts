@@ -125,7 +125,9 @@ describe('execute-function Module', () => {
         it('should execute the command configured while creating the cli', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
-            const result = execute(['test', 'something', '-a', '--bar', '--no-clue', '-d=testing 1 2 3']);
+            const result = execute(
+                ['node-path', 'src-file-path', 'test', 'something', '-a', '--bar', '--no-clue', '-d=testing 1 2 3'],
+            );
 
             expect(result).toEqual({
                 parameters: ['something'],
@@ -141,7 +143,7 @@ describe('execute-function Module', () => {
         it('should execute the default command configured if no command is specified while executing', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
-            const result = execute([]);
+            const result = execute(['node-path', 'src-file-path']);
 
             expect(result).toBe('default');
         });
@@ -149,7 +151,7 @@ describe('execute-function Module', () => {
         it('should execute the first default command, when found multiple default commands', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
-            const result = execute([]);
+            const result = execute(['node-path', 'src-file-path']);
 
             expect(result).toBe('default');
         });
@@ -157,7 +159,7 @@ describe('execute-function Module', () => {
         it('should execute the default command configured, if the command specified in args is not found', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
-            const result = execute(['non-existant-command-name']);
+            const result = execute(['node-path', 'src-file-path', 'non-existant-command-name']);
 
             expect(result).toBe('default');
         });
@@ -165,7 +167,7 @@ describe('execute-function Module', () => {
         it('should execute the action of the command whose alias is called at runtime', () => {
             const executeFn = createExecuteFn(fakeCommandWithSubCommands);
 
-            const result = executeFn(['sum', '--a=10', '--b=20']);
+            const result = executeFn(['node-path', 'src-file-path', 'sum', '--a=10', '--b=20']);
 
             expect(result).toBe(30);
         });
@@ -173,7 +175,7 @@ describe('execute-function Module', () => {
         it('should execute the action with proper de-aliased args for options', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
-            const result = execute(['divide', '--a=20', '--b=2']);
+            const result = execute(['node-path', 'src-file-path', 'divide', '--a=20', '--b=2']);
 
             expect(result).toBe(10);
         });
@@ -181,7 +183,9 @@ describe('execute-function Module', () => {
         it('should execute the main action if the command given at runtime is invalid & has no default command', () => {
             const execute = createExecuteFn(fakeCommandWithAction);
 
-            const result = execute(['argument1', 'argument2', '--flag1', '10', '--flag2', '20']);
+            const result = execute(
+                ['node-path', 'src-file-path', 'argument1', 'argument2', '--flag1', '10', '--flag2', '20'],
+            );
 
             expect(result).toEqual('fake-action-result');
         });
@@ -189,7 +193,7 @@ describe('execute-function Module', () => {
         it('should not generate Help when configured not to', () => {
             const execute = createExecuteFn(fakeCommandWithCheckHelpAction, { generateHelp: false });
 
-            const result = execute([]);
+            const result = execute(['node-path', 'src-file-path']);
 
             expect(result).toBe(false);
         });
@@ -197,7 +201,7 @@ describe('execute-function Module', () => {
         it('should return when there is no default command and the main action configured', () => {
             const execute = createExecuteFn(baseCommand);
 
-            const result = execute([]);
+            const result = execute(['node-path', 'src-file-path']);
 
             expect(result).toBe(undefined);
         });
