@@ -4,11 +4,6 @@
     "author": "Vamshi Krishna Alladi <vamshikrishnaalladi.me@gmail.com>",
     "license": "MIT",
     "description": "An opinionated solution for building CLI programs.",
-    "main": "dist/lib/index.js",
-    "types": "dist/lib/index.d.ts",
-    "files": [
-        "/dist"
-    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/VamshiKrishnaAlladi/cli-max.git"
@@ -27,6 +22,14 @@
     "engines": {
         "node": ">=7.10.0",
         "npm": ">=4.2.0"
+    },
+    "main": "dist/lib/index.js",
+    "types": "dist/lib/index.d.ts",
+    "files": [
+        "/dist"
+    ],
+    "bin": {
+        "cli-max": "dist/cli/cli.js"
     },
     "scripts": {
         "prebuild": "rimraf dist",
