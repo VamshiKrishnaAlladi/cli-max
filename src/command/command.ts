@@ -10,12 +10,12 @@ export interface Option {
     required: boolean;
 }
 
-export type GetHelpFn = () => string;
+export type HelpFn = () => string;
 
 export interface ActionParams {
     parameters: string[];
     flags: RuntimeFlags;
-    getHelp: GetHelpFn;
+    getHelp: HelpFn;
 }
 
 export type Action = (params: ActionParams) => any;
@@ -25,6 +25,7 @@ export interface SubCommand {
     description: string;
     usage: string;
     action: Action;
+    help?: HelpFn;
     aliases?: string[];
     options?: Option[];
     isDefault?: boolean;
@@ -35,6 +36,7 @@ export interface Command {
     description: string;
     usage: string;
     action?: Action;
+    help?: HelpFn;
     options?: Option[];
     subCommands?: SubCommand[];
 }
