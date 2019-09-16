@@ -8,11 +8,13 @@ export type ExecuteFn = (args?: string[]) => any;
 
 export interface ExecuteConfig extends HelpConfig {
     generateHelp?: boolean;
+    handleHelp?: boolean;
 }
 
 export const defaultExecuteConfig: ExecuteConfig = {
     ...defaultHelpConfig,
     generateHelp: true,
+    handleHelp: true,
 };
 
 function processFlags(options: Option[] = [], flags: RuntimeFlags): RuntimeFlags {
@@ -41,7 +43,7 @@ export function createExecuteFn(
     config: ExecuteConfig = defaultExecuteConfig,
 ): ExecuteFn {
     const { action, options, subCommands = [] } = command;
-    const { generateHelp, ...helpConfig } = { ...defaultExecuteConfig, ...config };
+    const { generateHelp, handleHelp, ...helpConfig } = { ...defaultExecuteConfig, ...config };
 
     return (processArgs: string[] = mandate('processArgs')) => {
 
@@ -54,6 +56,18 @@ export function createExecuteFn(
         const [commandToExecute = defaultCommand] = subCommands.filter(({ name, aliases = [] }) => {
             return name === commandName || aliases.includes(commandName);
         });
+
+        if (handleHelp && runtimeFlags.help) {
+            const commandToUse = commandToExecute || command;
+
+            if (commandToUse.help) {
+                console.log(commandToUse.help());
+                return;
+            }
+
+            console.log(createGetHelpFn(commandToUse, helpConfig)());
+            return;
+        }
 
         if (!commandToExecute) {
             if (action) {
