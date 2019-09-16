@@ -11,6 +11,13 @@ const fakeSubCommands: SubCommand[] = [
         action: ({ parameters, flags }) => ({ parameters, flags }),
     },
     {
+        name: 'custom-help',
+        description: 'a command with custom help fn',
+        usage: 'test custom-help < --falgs >',
+        action: () => {},
+        help: () => 'the custom help',
+    },
+    {
         name: 'default',
         description: 'the default command',
         usage: 'default',
@@ -79,6 +86,18 @@ const fakeCommandWithCheckHelpAction: Command = {
     action: checkHelpAction,
 };
 
+const helpForDefaultSubCommand = `
+default - the default command
+
+usage: default
+`;
+
+const helpForBaseCommand = `
+fake-command - This command is for testing purposes
+
+usage: fake-command <sub-command> <params>
+`;
+
 describe('execute-function Module', () => {
     it('should export a method called "createExecuteFn"', () => {
         const exports = require('./execute-function');
@@ -108,6 +127,10 @@ describe('execute-function Module', () => {
     });
 
     describe('execute function', () => {
+        const originalLog = console.log;
+
+        afterEach(() => { console.log = originalLog; });
+
         it('should throw "MissingMandatoryParamError" when "processArgs" is not passed', () => {
             const execute = createExecuteFn(fakeCommandWithSubCommands);
 
@@ -120,6 +143,51 @@ describe('execute-function Module', () => {
             }
 
             expect.assertions(2);
+        });
+
+        it('should call the help function configure in the command when --help is passed', () => {
+            const mockLog = jest.fn();
+            console.log = mockLog;
+
+            const execute = createExecuteFn(fakeCommandWithSubCommands, { prettyHelp: false });
+
+            execute(['node-path', 'src-file-path', 'custom-help', '--help']);
+
+            expect(mockLog.mock.calls[0]).toEqual(['the custom help']);
+        });
+
+        it('should print auto generated help details when --help flag is passed', () => {
+            const mockLog = jest.fn();
+            console.log = mockLog;
+
+            const execute = createExecuteFn(fakeCommandWithSubCommands, { prettyHelp: false });
+
+            execute(['node-path', 'src-file-path', '--help']);
+
+            expect(mockLog.mock.calls[0]).toEqual([helpForDefaultSubCommand]);
+        });
+
+        it('should print help deatils of the main command if default and sub-commands are NOT configured', () => {
+            const mockLog = jest.fn();
+            console.log = mockLog;
+
+            const execute = createExecuteFn(fakeCommandWithAction, { prettyHelp: false });
+
+            execute(['node-path', 'src-file-path', '--help']);
+
+            expect(mockLog.mock.calls[0]).toEqual([helpForBaseCommand]);
+        });
+
+        it('should not show help even if --help flag is passed when "handleHelp" is configured to false', () => {
+            const mockLog = jest.fn();
+            console.log = mockLog;
+
+            const execute = createExecuteFn(fakeCommandWithSubCommands, { handleHelp: false });
+
+            const result = execute(['node-path', 'src-file-path', '--help']);
+
+            expect(mockLog.mock.calls.length).toBe(0);
+            expect(result).toEqual('default');
         });
 
         it('should execute the command configured while creating the cli', () => {

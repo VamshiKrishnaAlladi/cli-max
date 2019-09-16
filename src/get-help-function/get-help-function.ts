@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { pipe } from '@vka/ts-utils';
 
-import { Command, Option, SubCommand, GetHelpFn } from '../command';
+import { Command, Option, SubCommand, HelpFn } from '../command';
 
 export interface HelpConfig {
     prettyHelp?: boolean;
@@ -22,7 +22,7 @@ const appendNL = append(nl);
 const append2NLs = append(`${nl}${nl}`);
 const appendTab = append(tab);
 
-export function createGetHelpFn(command: Command | SubCommand, config: HelpConfig = defaultHelpConfig): GetHelpFn {
+export function createGetHelpFn(command: Command | SubCommand, config: HelpConfig = defaultHelpConfig): HelpFn {
     const { aliases = [], options = [], subCommands = [] } = <Command & SubCommand>command;
     const { prettyHelp, paddingInDetails } = { ...defaultHelpConfig, ...config };
 
