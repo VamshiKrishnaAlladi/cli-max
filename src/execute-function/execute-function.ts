@@ -78,6 +78,10 @@ export function createExecuteFn(
                 });
             }
 
+            if (handleHelp) {
+                console.log(createGetHelpFn(command, helpConfig)());
+            }
+
             return;
         }
 
