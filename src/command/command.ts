@@ -18,6 +18,7 @@ export interface ActionParams {
     getHelp: HelpFn;
 }
 
+// eslint-disable-next-line no-unused-vars
 export type Action = (params: ActionParams) => any;
 
 export interface SubCommand {

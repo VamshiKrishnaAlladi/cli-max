@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
         "declaration": true,
-        "lib": ["es2017"],
+        "esModuleInterop": true,
+        "lib": [
+            "es2017"
+        ],
         "outDir": "dist",
         "rootDir": "src",
         "skipLibCheck": true,
         "suppressImplicitAnyIndexErrors": true,
-        "target": "ES5",
+        "target": "ES5"
     },
     "exclude": [
         "dist",

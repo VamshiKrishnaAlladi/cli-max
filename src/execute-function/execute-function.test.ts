@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { MissingMandatoryParamError } from '@vka/ts-utils';
 
 import { Action, Command, SubCommand } from '../command';
@@ -110,8 +111,7 @@ describe('execute-function Module', () => {
         it('should throw a "MissingMandatoryParamError" when "command" is NOT passed', () => {
             try {
                 createExecuteFn();
-            }
-            catch (error) {
+            } catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
                 expect(error.missingParam).toBe('command');
             }
@@ -136,8 +136,7 @@ describe('execute-function Module', () => {
 
             try {
                 execute();
-            }
-            catch (error) {
+            } catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
                 expect(error.missingParam).toEqual('processArgs');
             }
@@ -282,7 +281,10 @@ describe('execute-function Module', () => {
         });
 
         it('should not generate Help when configured not to', () => {
-            const execute = createExecuteFn(fakeCommandWithCheckHelpAction, { generateHelp: false });
+            const execute = createExecuteFn(
+                fakeCommandWithCheckHelpAction,
+                { generateHelp: false },
+            );
 
             const result = execute(['node-path', 'src-file-path']);
 

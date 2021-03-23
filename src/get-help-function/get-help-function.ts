@@ -22,7 +22,10 @@ const appendNL = append(nl);
 const append2NLs = append(`${nl}${nl}`);
 const appendTab = append(tab);
 
-export function createGetHelpFn(command: Command | SubCommand, config: HelpConfig = defaultHelpConfig): HelpFn {
+export const createGetHelpFn = (
+    command: Command | SubCommand,
+    config: HelpConfig = defaultHelpConfig,
+): HelpFn => {
     const { aliases = [], options = [], subCommands = [] } = <Command & SubCommand>command;
     const { prettyHelp, paddingInDetails } = { ...defaultHelpConfig, ...config };
 
@@ -30,30 +33,28 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
     const subtitle = prettyHelp ? chalk.greenBright.bold : identity;
     const key = prettyHelp ? chalk.magentaBright.bold : identity;
 
-    const defaultHelp = ({ name, description, usage }: Command | SubCommand) => {
-        return pipe(
-            appendNL,
-            append(`${title(name)} - ${description}`),
-            append2NLs,
-            append(`${subtitle('usage:')} ${usage}`),
-            appendNL,
-        )('');
-    };
+    const defaultHelp = ({ name, description, usage }: Command | SubCommand) => pipe(
+        appendNL,
+        append(`${title(name)} - ${description}`),
+        append2NLs,
+        append(`${subtitle('usage:')} ${usage}`),
+        appendNL,
+    )('');
 
-    const getHelpForCommandAliases = (aliases: string[]) => (helpText: string) => {
-        if (aliases.length === 0) {
+    const getHelpForCommandAliases = (commandAliases: string[]) => (helpText: string) => {
+        if (commandAliases.length === 0) {
             return helpText;
         }
 
         return pipe(
             appendNL,
-            append(`${subtitle('aliases:')} ${aliases.map(alias => key(alias)).join(', ')}`),
+            append(`${subtitle('aliases:')} ${commandAliases.map((alias) => key(alias)).join(', ')}`),
             appendNL,
         )(helpText);
     };
 
-    const optionHelp = ({ name, description, aliases }: Option) => {
-        const names = [name, ...aliases].map(name => key(`--${name}`)).join(' | ');
+    const optionHelp = ({ name, description, aliases: optionAliases }: Option) => {
+        const names = [name, ...optionAliases].map((optionName) => key(`--${optionName}`)).join(' | ');
 
         return pipe(
             appendNL,
@@ -63,8 +64,8 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
         )('');
     };
 
-    const getHelpForOptions = (options: Option[]) => (helpText: string) => {
-        if (options.length === 0) {
+    const getHelpForOptions = (opts: Option[]) => (helpText: string) => {
+        if (opts.length === 0) {
             return helpText;
         }
 
@@ -72,19 +73,19 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
             appendNL,
             append(subtitle('options:')),
             appendNL,
-            append(options.map(optionHelp).join('')),
+            append(opts.map(optionHelp).join('')),
         )(helpText);
     };
 
-    const subCommmandHelp = ({ name, description }: SubCommand) => pipe(
+    const subCommandHelp = ({ name, description }: SubCommand) => pipe(
         appendNL,
         appendTab,
         append(key(name.padEnd(paddingInDetails, ' '))),
         append(description),
     )('');
 
-    const getHelpForSubCommands = (subCommands: SubCommand[]) => (helpText: string) => {
-        if (subCommands.length === 0) {
+    const getHelpForSubCommands = (subCmds: SubCommand[]) => (helpText: string) => {
+        if (subCmds.length === 0) {
             return helpText;
         }
 
@@ -92,7 +93,7 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
             appendNL,
             append(subtitle('commands:')),
             appendNL,
-            append(subCommands.map(subCommmandHelp).join('')),
+            append(subCmds.map(subCommandHelp).join('')),
             appendNL,
         )(helpText);
     };
@@ -103,4 +104,4 @@ export function createGetHelpFn(command: Command | SubCommand, config: HelpConfi
         getHelpForOptions(options),
         getHelpForSubCommands(subCommands),
     )(command);
-}
+};

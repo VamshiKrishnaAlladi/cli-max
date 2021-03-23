@@ -1,6 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
-const { createCLI } = require('./../src');
+const { createCLI } = require('../src');
 
 const execute = createCLI({
     name: 'give',
@@ -11,7 +12,7 @@ const execute = createCLI({
             action: ({ flags: { to } }) => {
                 console.log(`Hello ${to}! How are you?`);
             },
-            options:[
+            options: [
                 {
                     name: 'to',
                     aliases: ['t'],
@@ -27,16 +28,16 @@ const execute = createCLI({
             action: ({ flags: { to } }) => {
                 console.log(`Hey ${to}, You look good! :)`);
             },
-            options:[
+            options: [
                 {
                     name: 'to',
                     aliases: ['t'],
-                    description: 'this option specifies whom to complient',
+                    description: 'this option specifies whom to compliment',
                     required: false,
                     defaultValue: 'there',
                 },
             ],
-        }
+        },
     ],
 });
 

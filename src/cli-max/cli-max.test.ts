@@ -1,8 +1,7 @@
-
 import { MissingMandatoryParamError } from '@vka/ts-utils';
 
 import { createCLI } from './cli-max';
-import { Action, Command } from './../command';
+import { Action, Command } from '../command';
 
 const fakeCommand: Command = {
     name: 'fake-command',
@@ -31,8 +30,7 @@ describe('cli-max module', () => {
         it('should throw "MissingMandatoryParamError" when "command" is NOT passed', () => {
             try {
                 createCLI();
-            }
-            catch (error) {
+            } catch (error) {
                 expect(error).toBeInstanceOf(MissingMandatoryParamError);
                 expect(error.missingParam).toBe('command');
             }
