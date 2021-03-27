@@ -2,20 +2,18 @@
 import { mandate } from '@vka/ts-utils';
 import minimist from 'minimist';
 
-import { Command, Option, RuntimeFlags } from '../command';
+import { Command, Option, RuntimeFlags, SubCommand } from '../command';
 import { createGetHelpFn, defaultHelpConfig, HelpConfig } from '../get-help-function';
 
 // eslint-disable-next-line no-unused-vars
 export type ExecuteFn = (args?: string[]) => any;
 
 export interface ExecuteConfig extends HelpConfig {
-    generateHelp?: boolean;
     handleHelp?: boolean;
 }
 
 export const defaultExecuteConfig: ExecuteConfig = {
     ...defaultHelpConfig,
-    generateHelp: true,
     handleHelp: true,
 };
 
@@ -47,56 +45,69 @@ function processFlags(options: Option[] = [], flags: RuntimeFlags): RuntimeFlags
     }, defaultValuesMap);
 }
 
+function runCommand(
+    commandToRun: Command | SubCommand,
+    parameters: string[],
+    flags: RuntimeFlags,
+    config: ExecuteConfig,
+) {
+    const { handleHelp, ...helpConfig } = config;
+    const getHelp = commandToRun.getHelp || createGetHelpFn(commandToRun, helpConfig);
+
+    // show help when explicitly asked for
+    if (handleHelp && flags.help) {
+        console.log(getHelp());
+        return true;
+    }
+
+    // run the action for the command
+    if (commandToRun.action) {
+        return commandToRun.action({
+            parameters,
+            flags: processFlags(commandToRun.options, flags),
+            ...(handleHelp && { getHelp }),
+        });
+    }
+
+    // show help when action is unavailable
+    if (handleHelp) {
+        console.log(getHelp());
+        return true;
+    }
+
+    return false;
+}
+
 export function createExecuteFn(
     command: Command = mandate('command'),
     config: ExecuteConfig = defaultExecuteConfig,
 ): ExecuteFn {
-    const { action, options, subCommands = [] } = command;
-    const { generateHelp, handleHelp, ...helpConfig } = { ...defaultExecuteConfig, ...config };
+    const { subCommands = [] } = command;
+    const [defaultSubCommand] = subCommands.filter((subCommand) => subCommand.isDefault);
 
     return (processArgs: string[] = mandate('processArgs')) => {
         const { _: parameters, ...runtimeFlags } = minimist(processArgs.slice(2));
 
         const [commandName, ...remainingParameters] = parameters;
 
-        const [defaultCommand] = subCommands.filter((cmd) => cmd.isDefault);
-
-        const [commandToExecute = defaultCommand] = subCommands.filter(
+        const [subCommandToExecute = defaultSubCommand] = subCommands.filter(
             ({ name, aliases = [] }) => name === commandName || aliases.includes(commandName),
         );
 
-        if (handleHelp && runtimeFlags.help) {
-            const commandToUse = commandToExecute || command;
-
-            if (commandToUse.getHelp) {
-                console.log(commandToUse.getHelp());
-                return undefined;
-            }
-
-            console.log(createGetHelpFn(commandToUse, helpConfig)());
-            return undefined;
+        if (subCommandToExecute) {
+            return runCommand(
+                subCommandToExecute,
+                remainingParameters,
+                processFlags(subCommandToExecute.options, runtimeFlags),
+                { ...defaultExecuteConfig, ...config },
+            );
         }
 
-        if (!commandToExecute) {
-            if (action) {
-                return action({
-                    parameters,
-                    flags: processFlags(options, runtimeFlags),
-                    ...(generateHelp && { getHelp: createGetHelpFn(command, helpConfig) }),
-                });
-            }
-
-            if (handleHelp) {
-                console.log(createGetHelpFn(command, helpConfig)());
-            }
-
-            return undefined;
-        }
-
-        return commandToExecute.action({
-            parameters: remainingParameters,
-            flags: processFlags(commandToExecute.options, runtimeFlags),
-            ...(generateHelp && { getHelp: createGetHelpFn(commandToExecute, helpConfig) }),
-        });
+        return runCommand(
+            command,
+            parameters,
+            processFlags(command.options, runtimeFlags),
+            { ...defaultExecuteConfig, ...config },
+        );
     };
 }

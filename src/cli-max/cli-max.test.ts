@@ -53,7 +53,7 @@ describe('cli-max module', () => {
         });
 
         it('should not generate Help when configured not to', () => {
-            const execute = createCLI(fakeCommandWithCheckHelp, { generateHelp: false });
+            const execute = createCLI(fakeCommandWithCheckHelp, { handleHelp: false });
 
             const result = execute([]);
 

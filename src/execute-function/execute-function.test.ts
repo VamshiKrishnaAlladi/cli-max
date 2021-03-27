@@ -197,7 +197,7 @@ describe('execute-function Module', () => {
             const result = execute(['node-path', 'src-file-path']);
 
             expect(mockLog.mock.calls.length).toBe(0);
-            expect(result).toBe(undefined);
+            expect(result).toBe(false);
         });
 
         it('should not show "help" even if --help flag is passed when "handleHelp" is configured to false', () => {
@@ -283,7 +283,7 @@ describe('execute-function Module', () => {
         it('should not generate Help when configured not to', () => {
             const execute = createExecuteFn(
                 fakeCommandWithCheckHelpAction,
-                { generateHelp: false },
+                { handleHelp: false },
             );
 
             const result = execute(['node-path', 'src-file-path']);
