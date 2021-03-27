@@ -10,12 +10,12 @@ export interface Option {
     required: boolean;
 }
 
-export type HelpFn = () => string;
+export type GetHelpFn = () => string;
 
 export interface ActionParams {
     parameters: string[];
     flags: RuntimeFlags;
-    getHelp: HelpFn;
+    getHelp: GetHelpFn;
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -26,7 +26,7 @@ export interface SubCommand {
     description: string;
     usage: string;
     action: Action;
-    help?: HelpFn;
+    getHelp?: GetHelpFn;
     aliases?: string[];
     options?: Option[];
     isDefault?: boolean;
@@ -37,7 +37,7 @@ export interface Command {
     description: string;
     usage: string;
     action?: Action;
-    help?: HelpFn;
+    getHelp?: GetHelpFn;
     options?: Option[];
     subCommands?: SubCommand[];
 }

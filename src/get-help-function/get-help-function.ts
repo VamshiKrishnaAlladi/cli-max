@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { pipe } from '@vka/ts-utils';
 
-import { Command, Option, SubCommand, HelpFn } from '../command';
+import { Command, Option, SubCommand, GetHelpFn } from '../command';
 
 export interface HelpConfig {
     prettyHelp?: boolean;
@@ -101,7 +101,7 @@ const appendSubCommandsHelpStr = (prettifiers) => (subCmds: SubCommand[]) => (he
 export const createGetHelpFn = (
     command: Command | SubCommand,
     config: HelpConfig = defaultHelpConfig,
-): HelpFn => {
+): GetHelpFn => {
     const { aliases = [], options = [], subCommands = [] } = <Command & SubCommand>command;
     const prettifiers = getPrettifiers({ ...defaultHelpConfig, ...config });
 

@@ -68,8 +68,8 @@ export function createExecuteFn(
         if (handleHelp && runtimeFlags.help) {
             const commandToUse = commandToExecute || command;
 
-            if (commandToUse.help) {
-                console.log(commandToUse.help());
+            if (commandToUse.getHelp) {
+                console.log(commandToUse.getHelp());
                 return undefined;
             }
 

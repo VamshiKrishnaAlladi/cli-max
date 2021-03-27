@@ -16,7 +16,7 @@ const fakeSubCommands: SubCommand[] = [
         description: 'a command with custom help fn',
         usage: 'test custom-help < --flags >',
         action: () => {},
-        help: () => 'the custom help',
+        getHelp: () => 'the custom help',
     },
     {
         name: 'default',
