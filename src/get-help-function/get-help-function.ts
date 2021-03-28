@@ -17,90 +17,98 @@ const nl = '\n';
 const tab = '\t';
 
 const identity = (x: any) => x;
-const append = (x: string) => (y: string) => `${y}${x}`;
+const append = (suffix: string) => (str: string) => `${str}${suffix}`;
 const appendNL = append(nl);
 const append2NLs = append(`${nl}${nl}`);
 const appendTab = append(tab);
 
-export function createGetHelpFn(command: Command | SubCommand, config: HelpConfig = defaultHelpConfig): GetHelpFn {
-    const { aliases = [], options = [], subCommands = [] } = <Command & SubCommand>command;
-    const { prettyHelp, paddingInDetails } = { ...defaultHelpConfig, ...config };
-
+const getPrettifiers = ({ prettyHelp, ...remainingProps }: HelpConfig) => {
     const title = prettyHelp ? chalk.yellowBright.bold.underline : identity;
     const subtitle = prettyHelp ? chalk.greenBright.bold : identity;
     const key = prettyHelp ? chalk.magentaBright.bold : identity;
 
-    const defaultHelp = ({ name, description, usage }: Command | SubCommand) => {
-        return pipe(
-            appendNL,
-            append(`${title(name)} - ${description}`),
-            append2NLs,
-            append(`${subtitle('usage:')} ${usage}`),
-            appendNL,
-        )('');
+    return {
+        fns: { title, subtitle, key },
+        props: { prettyHelp, ...remainingProps },
     };
+};
 
-    const getHelpForCommandAliases = (aliases: string[]) => (helpText: string) => {
-        if (aliases.length === 0) {
-            return helpText;
-        }
+const getMainHelpStr = (prettifiers) => (command: Command | SubCommand) => pipe(
+    appendNL,
+    append(`${prettifiers.fns.title(command.name)} - ${command.description}`),
+    append2NLs,
+    append(`${prettifiers.fns.subtitle('usage:')} ${command.usage}`),
+    appendNL,
+)('');
 
-        return pipe(
-            appendNL,
-            append(`${subtitle('aliases:')} ${aliases.map(alias => key(alias)).join(', ')}`),
-            appendNL,
-        )(helpText);
-    };
+const appendAliasesHelpStr = (prettifiers) => (aliases: string[]) => (helpStr: string) => {
+    if (aliases.length === 0) {
+        return helpStr;
+    }
 
-    const optionHelp = ({ name, description, aliases }: Option) => {
-        const names = [name, ...aliases].map(name => key(`--${name}`)).join(' | ');
+    return pipe(
+        appendNL,
+        append(`${prettifiers.fns.subtitle('aliases:')} ${aliases.map((alias) => prettifiers.fns.key(alias)).join(', ')}`),
+        appendNL,
+    )(helpStr);
+};
 
-        return pipe(
-            appendNL,
-            appendTab,
-            append(`[ ${names} ] - ${description}`),
-            appendNL,
-        )('');
-    };
+const getOptionHelpStr = (prettifiers) => (option: Option) => {
+    const names = [option.name, ...option.aliases].map((optionName) => prettifiers.fns.key(`--${optionName}`)).join(' | ');
 
-    const getHelpForOptions = (options: Option[]) => (helpText: string) => {
-        if (options.length === 0) {
-            return helpText;
-        }
-
-        return pipe(
-            appendNL,
-            append(subtitle('options:')),
-            appendNL,
-            append(options.map(optionHelp).join('')),
-        )(helpText);
-    };
-
-    const subCommmandHelp = ({ name, description }: SubCommand) => pipe(
+    return pipe(
         appendNL,
         appendTab,
-        append(key(name.padEnd(paddingInDetails, ' '))),
-        append(description),
+        append(`[ ${names} ] - ${option.description}`),
+        appendNL,
     )('');
+};
 
-    const getHelpForSubCommands = (subCommands: SubCommand[]) => (helpText: string) => {
-        if (subCommands.length === 0) {
-            return helpText;
-        }
+const appendOptionsHelpStr = (prettifiers) => (opts: Option[]) => (helpText: string) => {
+    if (opts.length === 0) {
+        return helpText;
+    }
 
-        return pipe(
-            appendNL,
-            append(subtitle('commands:')),
-            appendNL,
-            append(subCommands.map(subCommmandHelp).join('')),
-            appendNL,
-        )(helpText);
-    };
+    return pipe(
+        appendNL,
+        append(prettifiers.fns.subtitle('options:')),
+        appendNL,
+        append(opts.map(getOptionHelpStr(prettifiers)).join('')),
+    )(helpText);
+};
+
+const getSubCommandHelpStr = (prettifiers) => ({ name, description }: SubCommand) => pipe(
+    appendNL,
+    appendTab,
+    append(prettifiers.fns.key(name.padEnd(prettifiers.props.paddingInDetails, ' '))),
+    append(description),
+)('');
+
+const appendSubCommandsHelpStr = (prettifiers) => (subCmds: SubCommand[]) => (helpText: string) => {
+    if (subCmds.length === 0) {
+        return helpText;
+    }
+
+    return pipe(
+        appendNL,
+        append(prettifiers.fns.subtitle('commands:')),
+        appendNL,
+        append(subCmds.map(getSubCommandHelpStr(prettifiers)).join('')),
+        appendNL,
+    )(helpText);
+};
+
+export const createGetHelpFn = (
+    command: Command | SubCommand,
+    config: HelpConfig = defaultHelpConfig,
+): GetHelpFn => {
+    const { aliases = [], options = [], subCommands = [] } = <Command & SubCommand>command;
+    const prettifiers = getPrettifiers({ ...defaultHelpConfig, ...config });
 
     return () => pipe(
-        defaultHelp,
-        getHelpForCommandAliases(aliases),
-        getHelpForOptions(options),
-        getHelpForSubCommands(subCommands),
+        getMainHelpStr(prettifiers),
+        appendAliasesHelpStr(prettifiers)(aliases),
+        appendOptionsHelpStr(prettifiers)(options),
+        appendSubCommandsHelpStr(prettifiers)(subCommands),
     )(command);
-}
+};

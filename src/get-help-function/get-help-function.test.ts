@@ -43,17 +43,17 @@ const fakeCommandWithSubCommands: Command = {
 
 const tab = '\t';
 
-const title = prettyHelp => prettyHelp ? chalk.yellowBright.bold.underline : x => x;
-const subtitle = prettyHelp => prettyHelp ? chalk.greenBright.bold : x => x;
-const key = prettyHelp => prettyHelp ? chalk.magentaBright.bold : x => x;
+const title = (prettyHelp) => (prettyHelp ? chalk.yellowBright.bold.underline : (x) => x);
+const subtitle = (prettyHelp) => (prettyHelp ? chalk.greenBright.bold : (x) => x);
+const key = (prettyHelp) => (prettyHelp ? chalk.magentaBright.bold : (x) => x);
 
-const expectedHelpText = prettyHelp => `
+const expectedHelpText = (prettyHelp) => `
 ${title(prettyHelp)('fake-name')} - a fake description the fake command
 
 ${subtitle(prettyHelp)('usage:')} fake-command
 `;
 
-const expectedHelpTextWithOptions = prettyHelp => `
+const expectedHelpTextWithOptions = (prettyHelp) => `
 ${title(prettyHelp)('fake-name')} - a fake description the fake command
 
 ${subtitle(prettyHelp)('usage:')} fake-command
@@ -63,7 +63,7 @@ ${subtitle(prettyHelp)('options:')}
 ${tab}[ ${key(prettyHelp)('--opt')} | ${key(prettyHelp)('--o')} ] - this option is used to specify some flag
 `;
 
-const expectedHelpTextWithSubCommands = prettyHelp => `
+const expectedHelpTextWithSubCommands = (prettyHelp) => `
 ${title(prettyHelp)('fake-name')} - a fake description the fake command
 
 ${subtitle(prettyHelp)('usage:')} fake-command
@@ -73,7 +73,7 @@ ${subtitle(prettyHelp)('commands:')}
 ${tab}${key(prettyHelp)('sub-command         ')}a fake description of sub-command
 `;
 
-const expectedHelpForSubCommandWithAliases = prettyHelp => `
+const expectedHelpForSubCommandWithAliases = (prettyHelp) => `
 ${title(prettyHelp)('sub-command')} - a fake description of sub-command
 
 ${subtitle(prettyHelp)('usage:')} fake-command sub-command

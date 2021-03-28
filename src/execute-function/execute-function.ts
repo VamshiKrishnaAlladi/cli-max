@@ -1,33 +1,42 @@
+/* eslint-disable no-console */
 import { mandate } from '@vka/ts-utils';
-import * as minimist from 'minimist';
+import minimist from 'minimist';
 
-import { Command, Option, RuntimeFlags } from '../command';
+import { Command, Option, RuntimeFlags, SubCommand } from '../command';
 import { createGetHelpFn, defaultHelpConfig, HelpConfig } from '../get-help-function';
 
+// eslint-disable-next-line no-unused-vars
 export type ExecuteFn = (args?: string[]) => any;
 
 export interface ExecuteConfig extends HelpConfig {
-    generateHelp?: boolean;
+    handleHelp?: boolean;
 }
 
 export const defaultExecuteConfig: ExecuteConfig = {
     ...defaultHelpConfig,
-    generateHelp: true,
+    handleHelp: true,
 };
 
 function processFlags(options: Option[] = [], flags: RuntimeFlags): RuntimeFlags {
-    const defaultValuesMap = options.reduce((defaultValuesMap, option) => (
-        defaultValuesMap[option.name] = option.defaultValue, defaultValuesMap
-    ), {});
+    const defaultValuesMap = options.reduce((valuesMap, option) => {
+        // eslint-disable-next-line no-param-reassign
+        valuesMap[option.name] = option.defaultValue;
+        return valuesMap;
+    }, {});
 
-    const deAliasedOptionNamesMap = options.reduce((deAliasedOptionNamesMap, option) => option.aliases.reduce(
-        (deAliasedOptionNamesMap, alias) => (deAliasedOptionNamesMap[alias] = option.name, deAliasedOptionNamesMap),
-        deAliasedOptionNamesMap,
+    const deAliasedOptionNamesMap = options.reduce((optionNames, option) => option.aliases.reduce(
+        (optNames, alias) => {
+            // eslint-disable-next-line no-param-reassign
+            optNames[alias] = option.name;
+            return optNames;
+        },
+        optionNames,
     ), {});
 
     return Object.entries(flags).reduce((processedFlags, [flag, value]) => {
         const deAliasedOptionName = deAliasedOptionNamesMap[flag] || flag;
 
+        // eslint-disable-next-line no-param-reassign
         processedFlags[deAliasedOptionName] = value === true
             ? (defaultValuesMap[deAliasedOptionName] || true)
             : value;
@@ -36,41 +45,69 @@ function processFlags(options: Option[] = [], flags: RuntimeFlags): RuntimeFlags
     }, defaultValuesMap);
 }
 
+function runCommand(
+    commandToRun: Command | SubCommand,
+    parameters: string[],
+    flags: RuntimeFlags,
+    config: ExecuteConfig,
+) {
+    const { handleHelp, ...helpConfig } = config;
+    const getHelp = commandToRun.getHelp || createGetHelpFn(commandToRun, helpConfig);
+
+    // show help when explicitly asked for
+    if (handleHelp && flags.help) {
+        console.log(getHelp());
+        return true;
+    }
+
+    // run the action for the command
+    if (commandToRun.action) {
+        return commandToRun.action({
+            parameters,
+            flags: processFlags(commandToRun.options, flags),
+            ...(handleHelp && { getHelp }),
+        });
+    }
+
+    // show help when action is unavailable
+    if (handleHelp) {
+        console.log(getHelp());
+        return true;
+    }
+
+    return false;
+}
+
 export function createExecuteFn(
     command: Command = mandate('command'),
     config: ExecuteConfig = defaultExecuteConfig,
 ): ExecuteFn {
-    const { action, options, subCommands = [] } = command;
-    const { generateHelp, ...helpConfig } = { ...defaultExecuteConfig, ...config };
+    const { subCommands = [] } = command;
+    const [defaultSubCommand] = subCommands.filter((subCommand) => subCommand.isDefault);
 
     return (processArgs: string[] = mandate('processArgs')) => {
-
         const { _: parameters, ...runtimeFlags } = minimist(processArgs.slice(2));
 
         const [commandName, ...remainingParameters] = parameters;
 
-        const [defaultCommand] = subCommands.filter(command => command.isDefault);
+        const [subCommandToExecute = defaultSubCommand] = subCommands.filter(
+            ({ name, aliases = [] }) => name === commandName || aliases.includes(commandName),
+        );
 
-        const [commandToExecute = defaultCommand] = subCommands.filter(({ name, aliases = [] }) => {
-            return name === commandName || aliases.includes(commandName);
-        });
-
-        if (!commandToExecute) {
-            if (action) {
-                return action({
-                    parameters,
-                    flags: processFlags(options, runtimeFlags),
-                    ...(generateHelp && { getHelp: createGetHelpFn(command, helpConfig) }),
-                });
-            }
-
-            return;
+        if (subCommandToExecute) {
+            return runCommand(
+                subCommandToExecute,
+                remainingParameters,
+                processFlags(subCommandToExecute.options, runtimeFlags),
+                { ...defaultExecuteConfig, ...config },
+            );
         }
 
-        return commandToExecute.action({
-            parameters: remainingParameters,
-            flags: processFlags(commandToExecute.options, runtimeFlags),
-            ...(generateHelp && { getHelp: createGetHelpFn(commandToExecute, helpConfig) }),
-        });
+        return runCommand(
+            command,
+            parameters,
+            processFlags(command.options, runtimeFlags),
+            { ...defaultExecuteConfig, ...config },
+        );
     };
 }

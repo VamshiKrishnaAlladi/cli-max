@@ -1,8 +1,11 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
-version: 2
+version: 2.1
+workflows:
+  build:
+    jobs:
+      - build:
+          context:
+            - vka-github
+
 jobs:
   build:
     docker:
@@ -40,8 +43,17 @@ jobs:
           command: npm run lint
 
       - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+
+      - run:
           name: Run Tests
-          command: npm run test:ci
+          command: |
+            ./cc-test-reporter before-build
+            npm run test:ci
+            ./cc-test-reporter after-build
 
       - run:
           name: Upload coverage to codecov
@@ -49,4 +61,4 @@ jobs:
 
       - run:
           name: Make a semantic release
-          command: npm run semantic-release || true
+          command: npx semantic-release

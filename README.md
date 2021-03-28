@@ -4,7 +4,18 @@ An opinionated solution for building CLI applications using Node.js.
 
 ---
 
-## **Understanding CLI Application Categories**
+## **Contents**
+
+- [Understanding CLI Application Categories](#cli-categories)
+- [Understanding CLI Command invocation](#cli-invocation)
+- [Introduction to `cli-max`](#climax-intro)
+- [Getting Started](#getting-started)
+- [`cli-max` in Action (example)](#climax-example)
+- [API in detail](#api-in-detail)
+
+---
+
+## <a name="cli-categories"></a> **Understanding CLI Application Categories**
 
 CLI Applications can be categorized into two types
 
@@ -27,7 +38,7 @@ _**Examples:**_ `git`, `npm`, etc.,
 
 ---
 
-## **Understanding CLI Command invocation**
+## <a name="cli-invocation"></a> **Understanding CLI Command invocation**
 
 ### **Structure**
 
@@ -55,7 +66,7 @@ $ git pull --quiet origin master
 
 ---
 
-## **Introduction to `cli-max`**
+## <a name="climax-intro"></a> **Introduction to `cli-max`**
 
 `cli-max` is a library that tries to make the experience of building a CLI app easy and pleasant.
 
@@ -145,7 +156,70 @@ would generate the `process.argv` with the following values
 
 ---
 
-## **API in detail:**
+## <a name="climax-example"></a> **`cli-max` in Action**
+
+```typescript
+const execute = createCLI({
+    name: 'give',
+    description: 'Greetings made easy!',
+    subCommands: [
+        {
+            name: 'greetings',
+            action: ({ flags: { to } }) => {
+                console.log(`Hello ${to}! How are you?`);
+            },
+            options:[
+                {
+                    name: 'to',
+                    aliases: ['t'],
+                    description: 'this option specifies whom to greet',
+                    required: false,
+                    defaultValue: 'there',
+                },
+            ],
+            isDefault: true,
+        },
+        {
+            name: 'compliment',
+            action: ({ flags: { to } }) => {
+                console.log(`Hey ${to}, You look good! :)`);
+            },
+            options:[
+                {
+                    name: 'to',
+                    aliases: ['t'],
+                    description: 'this option specifies whom to complient',
+                    required: false,
+                    defaultValue: 'there',
+                },
+            ],
+        }
+    ],
+});
+
+execute(process.argv);
+
+/*
+Output:
+
+$ give greetings
+Hello there! How are you?
+
+$ give greetings --to John
+Hello John! How are you?
+
+$ give compliment
+Hey there, You look good! :)
+
+$ give greetings --to John
+Hey John, You look good! :)
+*/
+
+```
+
+---
+
+## <a name="api-in-detail"></a> **API in detail**
 
 **API:**
 - [createCLI()](#create-cli)
@@ -255,7 +329,7 @@ This type encapsulates the details needed to configure a `command`
 }
 ```
 
-> **Note** To auto-generate proper "help" details for a `command`, it is assumed that at the least the `name`, `description` and `usage` properties are assigned non-empty values.
+> **Note:** To auto-generate proper "help" details for a `command`, it is assumed that at the least the `name`, `description` and `usage` properties are assigned non-empty values.
 
 To create a Single Command CLI App one can just implement the action property in the Command object being passed to `createCLI()` API.
 
@@ -279,7 +353,7 @@ This type encapsulates the details needed to configure a `sub-command`
 }
 ```
 
-> **Note** To auto-generate proper "help" details for a `sub-command`, it is assumed that at the least the `name`, `description` and `usage` properties are assigned non-empty values.
+> **Note:** To auto-generate proper "help" details for a `sub-command`, it is assumed that at the least the `name`, `description` and `usage` properties are assigned non-empty values.
 
 ---
 
@@ -297,7 +371,7 @@ This type encapsulates the details needed to configure an option for either a co
 }
 ```
 
-> **Note** To auto-generate proper "help" details for `options` in a `command` or a `sub-command`, it is assumed that at the least the `name` and `description` for individual options are assigned non-empty values.
+> **Note:** To auto-generate proper "help" details for `options` in a `command` or a `sub-command`, it is assumed that at the least the `name` and `description` for individual options are assigned non-empty values.
 
 ---
 

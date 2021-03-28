@@ -1,6 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
-const { createCLI } = require('./../src');
+const { createCLI } = require('../src');
 
 const execute = createCLI({
     name: 'give',
@@ -11,7 +12,7 @@ const execute = createCLI({
             action: ({ flags: { to } }) => {
                 console.log(`Hello ${to}! How are you?`);
             },
-            options:[
+            options: [
                 {
                     name: 'to',
                     aliases: ['t'],
@@ -27,35 +28,20 @@ const execute = createCLI({
             action: ({ flags: { to } }) => {
                 console.log(`Hey ${to}, You look good! :)`);
             },
-            options:[
+            options: [
                 {
                     name: 'to',
                     aliases: ['t'],
-                    description: 'this option specifies whom to complient',
+                    description: 'this option specifies whom to compliment',
                     required: false,
                     defaultValue: 'there',
-                },
-            ],
-        },
-        {
-            name: 'curse',
-            action: ({ flags: { to } }) => {
-                console.log(`${to}, You are one stupid idiot!!`);
-            },
-            options:[
-                {
-                    name: 'to',
-                    aliases: ['t'],
-                    description: 'this option specifies whom to curse',
-                    required: false,
-                    defaultValue: 'You there',
                 },
             ],
         },
     ],
 });
 
-execute(process.argv.slice(2));
+execute(process.argv);
 
 /*
 Output:
@@ -71,11 +57,4 @@ Hey there, You look good! :)
 
 $ give greetings --to John
 Hey John, You look good! :)
-
-$ give curse
-You there, You are one stupid idiot!!
-
-$ give curse --to John
-John, You are one stupid idiot!!
-
 */

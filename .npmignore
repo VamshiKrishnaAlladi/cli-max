@@ -1,0 +1,17 @@
+.circleci/
+.husky/
+.vscode/
+coverage/
+scripts/
+src/
+
+.eslintignore
+.eslintrc.json
+.releaserc.json
+commitlint.config.js
+jest.config.json
+package-lock.json
+ts-jest.tsconfig.json
+tsconfig.json
+
+cc-test-reporter

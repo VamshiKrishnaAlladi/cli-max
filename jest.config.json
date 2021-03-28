@@ -8,7 +8,13 @@
             "statements": 100
         }
     },
-    "preset": "ts-jest/presets/js-with-ts",
+    "globals": {
+        "ts-jest": {
+            "diagnostics": false,
+            "tsconfig": "./ts-jest.tsconfig.json"
+        }
+    },
+    "preset": "ts-jest",
     "testMatch": null,
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$"
 }

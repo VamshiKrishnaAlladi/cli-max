@@ -18,6 +18,7 @@ export interface ActionParams {
     getHelp: GetHelpFn;
 }
 
+// eslint-disable-next-line no-unused-vars
 export type Action = (params: ActionParams) => any;
 
 export interface SubCommand {
@@ -25,6 +26,7 @@ export interface SubCommand {
     description: string;
     usage: string;
     action: Action;
+    getHelp?: GetHelpFn;
     aliases?: string[];
     options?: Option[];
     isDefault?: boolean;
@@ -35,6 +37,7 @@ export interface Command {
     description: string;
     usage: string;
     action?: Action;
+    getHelp?: GetHelpFn;
     options?: Option[];
     subCommands?: SubCommand[];
 }
